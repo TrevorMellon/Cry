@@ -1,0 +1,26 @@
+
+build-gcc:
+  image: gcc
+  stage: build
+  
+  before_script:
+    - apt update
+    - apt -y install make cmake
+    - apt -y install libboost-system1.67-dev libboost-date-time1.67-dev
+    - apt -y install libboost-filesystem1.67-dev libboost-program-options1.67-dev
+    - apt -y install libgcrypt20-dev
+
+  script:
+    - mkdir b
+    - cd b
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - make
+  #artifacts:
+    #paths:
+      #- mybinary
+      # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
+      # cache:
+      #   paths:
+      #     - "*.o"
+
+
