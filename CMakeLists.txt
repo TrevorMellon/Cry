@@ -5,10 +5,7 @@ project ( cry VERSION 0.1 )
 
 SET ( APP cry)
 
-SET ( SRC
-    ${CMAKE_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_SOURCE_DIR}/src/application.cpp
-)
+include( cmake/src.cmake )
 
 include( cmake/req.cmake )
 
