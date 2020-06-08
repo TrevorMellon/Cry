@@ -13,4 +13,3 @@ add_executable( ${APP} ${SRC})
 target_link_libraries(${APP} ${LIBS})
 target_include_directories(${APP} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(${APP} PUBLIC ${INCS})
-
