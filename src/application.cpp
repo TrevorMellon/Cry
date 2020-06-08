@@ -27,7 +27,7 @@ void Application::parse_options(int argc, char **argv)
     d.add_options()
             ("encrypt,e", "encrypt a file")
             ("decrypt,d", "decrypt a file")
-            ("input,f", "input file")
+            ("input,f", po::value<std::string>(), "input file")
             ;
     po::positional_options_description p;
     p.add("input", -1);
