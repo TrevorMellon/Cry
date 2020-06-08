@@ -6,13 +6,11 @@ project ( cry VERSION 0.1 )
 SET ( APP cry)
 
 SET ( SRC
-    src/main.cpp
-    src/application.cpp
+    ${CMAKE_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_SOURCE_DIR}/src/application.cpp
 )
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
-
-find_package(gcrypt)
+include( cmake/req.cmake )
 
 add_executable( ${APP} ${SRC})
 target_link_libraries(${APP} ${GCRYPT_LIBRARIES})
