@@ -1,7 +1,9 @@
-
 build-gcc:
   image: gcc
   stage: build
+  tags:
+    - linux
+    - docker
   
   before_script:
     - apt update
