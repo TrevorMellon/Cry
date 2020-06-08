@@ -13,6 +13,8 @@
 
 #define GPG_ALGO GCRY_CIPHER_SERPENT256
 
+const char* defualt_crypt_string = "cRy-b@by-369";
+
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -65,25 +67,16 @@ void Application::encrypt(std::string file)
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
 
     size_t keylen = gcry_cipher_get_algo_keylen(GPG_ALGO);
-    std::stringstream sskey;
-    sskey << "ozmodus9";
+
+    std::string key = cryptToLength("ozmodus9", keylen);
 
     size_t blklen = gcry_cipher_get_algo_blklen(GPG_ALGO);
-    std::stringstream blkss;
 
-    while (strlen(blkss.str().c_str())<blklen)
-    {
-        blkss << "#";
-    }
+    std::string blk = cryptToLength("testdata##9876", blklen);
 
-    while(strlen(sskey.str().c_str()) < keylen)
-    {
-        sskey << "#";
-    }
+    err = gcry_cipher_setkey(hd, key.c_str(), keylen);
 
-    err = gcry_cipher_setkey(hd,sskey.str().c_str(),keylen);
-
-    err = gcry_cipher_setiv(hd,blkss.str().c_str(),blklen);
+    err = gcry_cipher_setiv(hd, blk.c_str(), blklen);
 
     fs::path p(file);
 
@@ -121,9 +114,9 @@ void Application::encrypt(std::string file)
         ++r;
     }
 
-    size_t blk = r * blklen;
+    size_t bblk = r * blklen;
 
-    err = gcry_cipher_encrypt(hd, cryptbuffer, blk, buffer, blk);
+    err = gcry_cipher_encrypt(hd, cryptbuffer, bblk, buffer, bblk);
 
     if(err)
     {
@@ -133,7 +126,7 @@ void Application::encrypt(std::string file)
         return;
     }
 
-    fsout.write((char*)cryptbuffer,blk);
+    fsout.write((char*)cryptbuffer, bblk);
 
     fsout.close();
     fs.close();
@@ -153,27 +146,16 @@ void Application::decrypt(std::string file)
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
 
     size_t keylen = gcry_cipher_get_algo_keylen(GPG_ALGO);
-    std::stringstream sskey;
-    sskey << "ozmodus9";
+
+    std::string key = cryptToLength("ozmodus9", keylen);
 
     size_t blklen = gcry_cipher_get_algo_blklen(GPG_ALGO);
-    std::stringstream blkss;
 
+    std::string blk = cryptToLength("testdata##9876", blklen);
 
-    //blkss << "heybaby";
-    while (strlen(blkss.str().c_str())<blklen)
-    {
-        blkss << "#";
-    }
+    err = gcry_cipher_setkey(hd, key.c_str(), keylen);
 
-    while(strlen(sskey.str().c_str()) < keylen)
-    {
-        sskey << "#";
-    }
-
-    err = gcry_cipher_setkey(hd,sskey.str().c_str(),keylen);
-
-    err = gcry_cipher_setiv(hd,blkss.str().c_str(),blklen);
+    err = gcry_cipher_setiv(hd, blk.c_str(), blklen);
 
     fs::path p(file);
 
@@ -214,4 +196,40 @@ void Application::decrypt(std::string file)
     delete[] buffer;
     delete[] cryptbuffer;
 
+}
+
+std::string Application::cryptToLength(std::string in, size_t len)
+{
+    size_t l = in.size();
+
+    if(l==len)
+    {
+        return in;
+    }
+    else if(l>len)
+    {
+        return std::string(in.begin(),in.begin()+len);
+    }
+    else
+    {
+        std::stringstream ss;
+        ss << in;
+
+        size_t i = 0;
+
+        while(ss.str().size() < len)
+        {
+            ss << defualt_crypt_string[i];
+
+            ++i;
+
+            if(i>=strlen(defualt_crypt_string))
+            {
+                i = 0;
+            }
+
+        }
+
+        return ss.str();
+    }
 }
