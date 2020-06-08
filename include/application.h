@@ -7,6 +7,8 @@ namespace cry {
     public:
         Application();
         ~Application();
+    public:
+        void parse_options(int argc, char** argv);
     };
 
 } // namespace cry

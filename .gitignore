@@ -3,4 +3,6 @@ vs/**
 b/**
 build/**
 
+CMakeLists.txt.user
+
 
