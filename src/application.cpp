@@ -34,8 +34,12 @@ void Application::parse_options(int argc, char **argv)
 {
     po::options_description d("Allowed options");
     d.add_options()
+#if CRY_ENCRYPT
             ("encrypt,e", "encrypt a file")
+#endif
+#if CRY_DECRYPT
             ("decrypt,d", "decrypt a file")
+#endif
             ("input,f", po::value<std::string>(), "input file")
             ;
     po::positional_options_description p;
@@ -47,21 +51,26 @@ void Application::parse_options(int argc, char **argv)
     if(vm.count("encrypt")
             && vm.count("input"))
     {
+#if CRY_ENCRYPT
         std::cout << "Encrypt \"" << vm["input"].as< std::string >() << "\"" << std::endl;
         encrypt(vm["input"].as< std::string >());
         //e
+#endif
     }
     else if(vm.count("decrypt")
             && vm.count("input"))
     {
+#if CRY_DECRYPT
         std::cout << "Decrypt \"" << vm["input"].as< std::string>() << "\"" << std::endl;
         //d
+#endif
     }
 
 }
 
 void Application::encrypt(std::string file)
 {
+#if CRY_ENCRYPT
     gcry_cipher_hd_t hd;
 
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
@@ -136,11 +145,12 @@ void Application::encrypt(std::string file)
     delete[] buffer;
     delete[] cryptbuffer;
 
-    decrypt(ss.str());
+#endif // CRY_ENCRYPT
 }
 
 void Application::decrypt(std::string file)
 {
+#if CRY_DECYPT
     gcry_cipher_hd_t hd;
 
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
@@ -195,7 +205,7 @@ void Application::decrypt(std::string file)
 
     delete[] buffer;
     delete[] cryptbuffer;
-
+#endif // CRY_DECRYPT
 }
 
 std::string Application::cryptToLength(std::string in, size_t len)
