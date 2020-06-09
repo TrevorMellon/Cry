@@ -13,6 +13,7 @@ build-pi:
     - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ENCRYPT=ON ..
     - make
     - rm CMakeCache.txt
+    - rm Makefile
     - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_DECRYPT=ON ..
     - make
   artifacts:
@@ -42,6 +43,7 @@ build-gcc:
     - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ENCRYPT=ON ..
     - make
     - rm CMakeCache.txt
+    - rm Makefile
     - cmake -DCMAKE_BUILD_TYPE=Relase -DBUILD_DECRYPT=ON ..
     - make
   artifacts:
