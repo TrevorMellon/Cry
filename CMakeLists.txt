@@ -1,11 +1,10 @@
-
 cmake_minimum_required( VERSION 3.10 )
 
 project ( cry VERSION 0.1 )
 
 SET ( APP cry)
 
-option(BUILD_ENCRYPT "build encryptor" ON)
+option(BUILD_ENCRYPT "build encryptor" OFF)
 option(BUILD_DECRYPT "build decryptor" OFF)
 
 IF(BUILD_ENCRYPT)
