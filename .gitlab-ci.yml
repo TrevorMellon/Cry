@@ -1,3 +1,27 @@
+
+stages:
+  - build
+
+build-pi:
+  stage: build
+  tags:
+    - arm
+    - raspberrypi
+    - native
+  script:
+    - mkdir arm
+    - cd arm
+    - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ENCRYPT=ON ..
+    - make
+    - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_DECRYPT=ON ..
+    - make
+  artifacts:
+    paths:
+      - arm/crye
+      - arm/cryd
+    
+
+
 build-gcc:
   image: gcc
   stage: build
