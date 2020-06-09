@@ -1,4 +1,3 @@
-
 stages:
   - build
 
@@ -13,6 +12,7 @@ build-pi:
     - cd arm
     - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ENCRYPT=ON ..
     - make
+    - rm CMakeCache.txt
     - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_DECRYPT=ON ..
     - make
   artifacts:
@@ -37,12 +37,17 @@ build-gcc:
     - apt -y install libgcrypt20-dev
 
   script:
-    - mkdir b
-    - cd b
-    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - mkdir nix
+    - cd nix
+    - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ENCRYPT=ON ..
     - make
-  #artifacts:
-    #paths:
+    - rm CMakeCache.txt
+    - cmake -DCMAKE_BUILD_TYPE=Relase -DBUILD_DECRYPT=ON ..
+    - make
+  artifacts:
+    paths:
+      - nix/crye
+      - nix/cryd
       #- mybinary
       # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
       # cache:
