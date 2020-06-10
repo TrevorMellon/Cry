@@ -64,14 +64,14 @@ build-win:
     - vs2019
     - native
   script:
-    - cmd call vs 2019
-    - cmd mkdir windows
-    - cmd cd windows
-    - cmd cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..
-    - cmd make
-    - cmd del CMakeCache.txt Makefile
-    - cmd cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON ..
-    - cmd make
+    - cmd /c "call vs 2019"
+    - mkdir windows
+    - cd windows
+    - cmd /c "cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON .."
+    - make
+    - del CMakeCache.txt Makefile
+    - cmd /c "cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON .."
+    - make
   artifacts:
     paths:
       - windows/crye
