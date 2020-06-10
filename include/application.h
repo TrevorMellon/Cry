@@ -13,8 +13,14 @@ namespace cry {
         void parse_options(int argc, char** argv);
         void encrypt(std::string file);
         void decrypt(std::string file);
+        void identifyFile(std::string file);
     private:
         std::string cryptToLength(std::string in, size_t len);
+    private:
+        std::string     _fileName;
+        uint64_t        _fileSize;
+        bool            _encrypted;
+        std::string     _originalFileName;
     };
 
 } // namespace cry

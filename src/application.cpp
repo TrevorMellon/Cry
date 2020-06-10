@@ -13,6 +13,8 @@
 
 #define GPG_ALGO GCRY_CIPHER_SERPENT256
 
+#define CRY_EXT .369
+
 const char* defualt_crypt_string = "cRy-b@by-369";
 
 namespace po = boost::program_options;
@@ -150,7 +152,7 @@ void Application::encrypt(std::string file)
 
 void Application::decrypt(std::string file)
 {
-#if CRY_DECYPT
+#if CRY_DECRYPT
     gcry_cipher_hd_t hd;
 
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
@@ -242,4 +244,23 @@ std::string Application::cryptToLength(std::string in, size_t len)
 
         return ss.str();
     }
+}
+
+void Application::identifyFile(std::string file)
+{
+    fs::path p(file);
+
+    _fileName = "";
+
+    if(fs::exists(p))
+    {
+        _fileName = file;
+    }
+
+    if(p.extension().string() == "CRY_EXT")
+    {
+        this->_encrypted = true;
+    }
+
+    _fileSize = fs::file_size(p);
 }
