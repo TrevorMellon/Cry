@@ -64,7 +64,7 @@ build-win:
     - vs2019
     - native
   before_script:
-    - Start-Process "cmd.exe" "/c vs 2019"
+    - cmd vs 2019
   script:
     - mkdir windows
     - cd windows
