@@ -67,10 +67,10 @@ build-win:
     - cmd /c "call vs 2019"
     - mkdir windows
     - cd windows
-    - cmd /c "cmake -G \"NMake Makefiles\" -DBUILD_ENCRYPT=ON .."
+    - cmd /c "cmake -G 'NMake Makefiles' -DBUILD_ENCRYPT=ON .."
     - make
     - del CMakeCache.txt Makefile
-    - cmd /c "cmake -G \"NMake Makefiles\" -DBUILD_DECRYPT=ON .."
+    - cmd /c "cmake -G 'NMake Makefiles' -DBUILD_DECRYPT=ON .."
     - make
   artifacts:
     paths:
