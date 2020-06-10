@@ -1,7 +1,7 @@
 stages:
   - build
   
-build-windows-ten-twentynineteen:
+build-windowstentwentynineteen:
   stage: build
   tags:
     - win10
