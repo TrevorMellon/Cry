@@ -7,8 +7,9 @@ SET ( APP cry)
 
 option(BUILD_ENCRYPT "build encryptor" ON)
 option(BUILD_DECRYPT "build decryptor" OFF)
+option(BUILD_ENCDEC "build encryptor and decryptor" OFF)
 
-IF(BUILD_ENCRYPT)
+if(BUILD_ENCRYPT)
     SET ( APP ${APP}e)
     SET ( BUILD_DECRYPT OFF)
     add_definitions(-DCRY_ENCRYPT=1 -DCRY_DECRYPT=0)
@@ -17,6 +18,13 @@ else(BUILD_ENCRYPT)
     SET ( BUILD_DECRYPT ON)
     add_definitions(-DCRY_ENCRYPT=0 -DCRY_DECRYPT=1)
 endif(BUILD_ENCRYPT)
+
+if(BUILD_ENCDEC)
+    SET (BUILD_ENCRYPT ON)
+    SET (BUILD_DECRYPT ON)
+    SET (APP cry)
+    add_definitions(-DCRY_ENCRYPT=1 -DCRY_DECRYPT=1)
+endif(BUILD_ENCDEC)
 
 include( cmake/src.cmake )
 
