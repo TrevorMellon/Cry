@@ -63,15 +63,17 @@ build-win:
     - win10
     - vs2019
     - native
+  before_script:
+    - echo "call vs 2019" > mybuild.bat
+    - echo 'cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..' >> mybuild.bat
+    - echo make >> mybuild.bat
+    - echo del CMakeCache.txt Makefile >> mybuild.bat
+    - echo 'cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON ..' >> mybuild.bat
+    - echo make >> mybuild.bat
   script:
-    - cmd /c "call vs 2019"
     - mkdir windows
     - cd windows
-    - cmd /c 'cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..'
-    - make
-    - del CMakeCache.txt Makefile
-    - cmd /c 'cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON ..'
-    - make
+    - cmd /c "../mybuild.bat"
   artifacts:
     paths:
       - windows/crye
