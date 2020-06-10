@@ -57,7 +57,7 @@ build-gcc:
       #     - "*.o"
 
 
-buildwin:
+build-win:
   stage: build
   tags:
     - win10
