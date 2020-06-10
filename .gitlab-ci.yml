@@ -76,5 +76,5 @@ build-win:
     - cmd /c "mybuild.bat"
   artifacts:
     paths:
-      - windows/crye
-      - windows/cryd
+      - windows/crye.exe
+      - windows/cryd.exe
