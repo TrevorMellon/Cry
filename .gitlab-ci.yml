@@ -57,7 +57,7 @@ build-gcc:
       #     - "*.o"
 
 
-build-windows_10-vs2013:
+buildwin:
   stage: build
   tags:
     - win10
