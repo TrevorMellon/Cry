@@ -67,10 +67,10 @@ build-win:
     - mkdir windows
     - cd windows
     - cmd /c "echo call vs 2019 > mybuild.bat"
-    - cmd /c "echo cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON .. >> mybuild.bat"
+    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON .. >> mybuild.bat'
     - cmd /c "echo make >> mybuild.bat"
     - cmd /c "echo del CMakeCache.txt Makefile >> mybuild.bat"
-    - cmd /c "echo cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON .. >> mybuild.bat"
+    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON .. >> mybuild.bat'
     - cmd /c "echo make >> mybuild.bat"
   script:
     - cmd /c "mybuild.bat"
