@@ -1,7 +1,7 @@
 stages:
   - build
   
-build-win10-2019:
+build-win10_2019:
   stage: build
   tags:
     - win10
