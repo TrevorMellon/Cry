@@ -64,6 +64,8 @@ build-win:
     - vs2019
     - native
   before_script:
+    - mkdir windows
+    - cd windows
     - echo "call vs 2019" > mybuild.bat
     - echo 'cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..' >> mybuild.bat
     - echo make >> mybuild.bat
@@ -71,9 +73,7 @@ build-win:
     - echo 'cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON ..' >> mybuild.bat
     - echo make >> mybuild.bat
   script:
-    - mkdir windows
-    - cd windows
-    - cmd /c "../mybuild.bat"
+    - cmd /c "mybuild.bat"
   artifacts:
     paths:
       - windows/crye
