@@ -63,9 +63,8 @@ build-win:
     - win10
     - vs2019
     - native
-  before_script:
-    - cmd vs 2019
   script:
+    - cmd vs 2019
     - mkdir windows
     - cd windows
     - cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..
