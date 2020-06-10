@@ -6,6 +6,7 @@ build-win10vs2019:
   tags:
     - win10
     - vs2019
+    - native
   before_script:
     - call vs 2019
     
