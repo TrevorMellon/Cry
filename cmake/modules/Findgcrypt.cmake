@@ -15,7 +15,9 @@
 
 find_path(GCRYPT_INCLUDE_DIR gcrypt.h)
 
-find_library(GCRYPT_LIBRARIES gcrypt)
+find_library(GCRYPT_LIBRARIES gcrypt
+    NAMES grypt libcrypt libgcrypt-20 gcrypt-20
+)
 
 mark_as_advanced(GCRYPT_LIBRARIES GCRYPT_INCLUDE_DIR)
 

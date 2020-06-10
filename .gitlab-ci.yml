@@ -1,6 +1,8 @@
 stages:
   - build
 
+
+
 build-pi:
   stage: build
   tags:
@@ -29,14 +31,12 @@ build-gcc:
   tags:
     - linux
     - docker
-  
   before_script:
     - apt update
     - apt -y install make cmake
     - apt -y install libboost-system1.67-dev libboost-date-time1.67-dev
     - apt -y install libboost-filesystem1.67-dev libboost-program-options1.67-dev
     - apt -y install libgcrypt20-dev
-
   script:
     - mkdir nix
     - cd nix
@@ -57,3 +57,24 @@ build-gcc:
       #     - "*.o"
 
 
+build-win:
+  stage: build
+  tags:
+    - win10
+    - vs2019
+    - native
+  before_script:
+    - mkdir windows
+    - cd windows
+    - cmd /c "echo call vs 2019 > mybuild.bat"
+    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON .. >> mybuild.bat'
+    - cmd /c "echo nmake >> mybuild.bat"
+    - cmd /c "echo del CMakeCache.txt Makefile >> mybuild.bat"
+    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON .. >> mybuild.bat'
+    - cmd /c "echo nmake >> mybuild.bat"
+  script:
+    - cmd /c "mybuild.bat"
+  artifacts:
+    paths:
+      - windows/crye.exe
+      - windows/cryd.exe
