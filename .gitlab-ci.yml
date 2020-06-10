@@ -65,7 +65,7 @@ build-win:
     - native
   before_script:
     - call vs 2019
-  scripts:
+  script:
     - mkdir windows
     - cd windows
     - cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..
