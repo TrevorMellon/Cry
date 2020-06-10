@@ -1,5 +1,26 @@
 stages:
   - build
+  
+build-win10-2019:
+  stage: build
+  tags:
+    - win10
+    - vs2019
+  before_script:
+    - call vs 2019
+    
+  scripts:
+    - mkdir windows
+    - cd windows
+    - cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON ..
+    - make
+    - del CMakeCache.txt Makefile
+    - cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON ..
+    - make
+  artifacts:
+    paths:
+      - windows/crye
+      - windows/cryd
 
 build-pi:
   stage: build
