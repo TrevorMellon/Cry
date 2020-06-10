@@ -9,7 +9,6 @@ build-win10vs2019:
     - native
   before_script:
     - call vs 2019
-    
   scripts:
     - mkdir windows
     - cd windows
@@ -51,14 +50,12 @@ build-gcc:
   tags:
     - linux
     - docker
-  
   before_script:
     - apt update
     - apt -y install make cmake
     - apt -y install libboost-system1.67-dev libboost-date-time1.67-dev
     - apt -y install libboost-filesystem1.67-dev libboost-program-options1.67-dev
     - apt -y install libgcrypt20-dev
-
   script:
     - mkdir nix
     - cd nix
