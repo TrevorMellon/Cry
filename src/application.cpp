@@ -13,7 +13,7 @@
 
 #define GPG_ALGO GCRY_CIPHER_SERPENT256
 
-#define CRY_EXT .369
+#define CRY_EXT ".cry"
 
 const char* defualt_crypt_string = "cRy-b@by-369";
 
@@ -21,6 +21,12 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 using namespace cry;
+
+struct CryHeader
+{
+    uint64_t    filesize;
+    uint64_t    filenamesize;
+};
 
 Application::Application() 
 {
@@ -73,6 +79,8 @@ void Application::parse_options(int argc, char **argv)
 void Application::encrypt(std::string file)
 {
 #if CRY_ENCRYPT
+    identifyFile(file);
+
     gcry_cipher_hd_t hd;
 
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
@@ -101,21 +109,55 @@ void Application::encrypt(std::string file)
     fs.open(p.string(), std::fstream::in | std::fstream::binary);
 
     std::stringstream ss;
-    ss << file << ".369";
+    ss << file << CRY_EXT;
 
     std::fstream fsout;
     fsout.open(ss.str(), std::fstream::out| std::fstream::binary);
 
 
-    size_t cnt =1024 * 1024;//1Mb
+    size_t cnt =1024 * blklen;//1Mb
+
+    CryHeader hdr;
+    hdr.filesize = _fileSize;
+    hdr.filenamesize = file.size();
+
+    uint64_t headersz = sizeof(hdr)+file.size()+2;
 
     unsigned char *buffer = new unsigned char[cnt];
+    unsigned char* sbuff = new unsigned char[cnt];
+    memset(buffer,0,cnt);
 
-    auto c = fs.readsome((char*)buffer,cnt);
+    auto c = fs.readsome((char*)buffer,cnt-headersz);
+
+    //hdrss << _fileSize << file.size();
+    //hdrss << '\n' << file << '\0';
+    //hdrss << buffer;
+
+    uint64_t *ptr64 = (uint64_t*)sbuff;
+    ptr64[0] = _fileSize;
+    ptr64[1] = file.size();
+
+    uint8_t *ptr = sbuff;
+    ptr += (2*sizeof(uint64_t));
+    *ptr = '\n';
+    ++ptr;
+
+    for(char cs: file)
+    {
+        *ptr = (uint8_t)cs;
+        ++ptr;
+    }
+    *ptr = 0;
+    ++ptr;
+    for(int i=0;i<c;++i)
+    {
+        *ptr = buffer[i];
+        ++ptr;
+    }
 
     unsigned char *cryptbuffer = new unsigned char[cnt];
 
-    memset(cryptbuffer,0, cnt);
+    c += headersz;
 
     int rem = c % blklen;
     int r = c / blklen;
@@ -127,7 +169,9 @@ void Application::encrypt(std::string file)
 
     size_t bblk = r * blklen;
 
-    err = gcry_cipher_encrypt(hd, cryptbuffer, bblk, buffer, bblk);
+    memset(cryptbuffer,0, cnt);
+
+    err = gcry_cipher_encrypt(hd, cryptbuffer, bblk, sbuff, bblk);
 
     if(err)
     {
@@ -142,10 +186,11 @@ void Application::encrypt(std::string file)
     fsout.close();
     fs.close();
 
-
-
     delete[] buffer;
     delete[] cryptbuffer;
+    delete[] sbuff;
+
+    decrypt(ss.str());
 
 #endif // CRY_ENCRYPT
 }
@@ -180,25 +225,60 @@ void Application::decrypt(std::string file)
     std::fstream fs;
     fs.open(p.string(), std::fstream::in | std::fstream::binary);
 
-    std::stringstream ss;
-    ss << file << ".d.txt";
-
-    std::fstream fsout;
-    fsout.open(ss.str(), std::fstream::out| std::fstream::binary);
-
-
-    size_t cnt =1024 * 1024;//1Mb
+    size_t cnt =1024 * blklen;//1Mb
 
     unsigned char *cryptbuffer = new unsigned char[cnt];
     unsigned char *buffer = new unsigned char[cnt];
 
-    auto c = fs.readsome((char*)buffer,cnt);
+    auto c = fs.readsome((char*)buffer,cnt);    
 
     memset(cryptbuffer,0, cnt);
 
     err = gcry_cipher_decrypt(hd, cryptbuffer, c, buffer, c);
 
-    fsout.write((char*)cryptbuffer,c);
+    uint64_t filenameSize;
+
+    uint64_t *ptr64 = (uint64_t*)cryptbuffer;
+    _fileSize = ptr64[0];
+    filenameSize = ptr64[1];
+    uint8_t* ptr = cryptbuffer;
+    ptr += 2 * sizeof(uint64_t);
+
+    char* cptr = (char*)ptr;
+    if(*cptr != '\n')
+    {
+        return;
+    }
+    ++ptr;
+
+    std::stringstream nm;
+
+    cptr = (char*)ptr;
+
+    nm << cptr;
+
+    ptr+=nm.str().size()+1;
+    cptr = (char*)ptr;
+
+    //std::stringstream fss;
+    //fss << cptr;
+
+    if(_fileName.size() != filenameSize)
+    {
+        return;
+    }
+
+    uint64_t headersz = 2 * sizeof(uint64_t);
+    headersz += _fileName.size() + 2;
+
+    ptr = cryptbuffer + headersz;
+
+    nm << ".out";
+
+    std::fstream fsout;
+    fsout.open(nm.str(), std::fstream::out| std::fstream::binary);
+
+    fsout.write(cptr, _fileSize);
 
     fsout.close();
     fs.close();
