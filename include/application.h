@@ -21,6 +21,7 @@ namespace cry {
         uint64_t        _fileSize;
         bool            _encrypted;
         std::string     _originalFileName;
+        std::string     _password;
     };
 
 } // namespace cry

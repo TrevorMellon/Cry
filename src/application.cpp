@@ -14,6 +14,7 @@
 #define GPG_ALGO GCRY_CIPHER_SERPENT256
 
 #define CRY_EXT ".cry"
+#define CRY_DEFAULT_PASSWORD "ozmodus9"
 
 const char* defualt_crypt_string = "cRy-b@by-369";
 
@@ -29,6 +30,11 @@ struct CryHeader
 };
 
 Application::Application() 
+    : _fileName(""),
+      _fileSize(0),
+      _encrypted(false),
+      _originalFileName(""),
+      _password(CRY_DEFAULT_PASSWORD)
 {
 
 }
@@ -48,6 +54,9 @@ void Application::parse_options(int argc, char **argv)
 #if CRY_DECRYPT
             ("decrypt,d", "decrypt a file")
 #endif
+#if CRY_DECRYPT || CRY_ENCRYPT
+            ("password,p", po::value<std::string>(), "set the given password")
+#endif
             ("input,f", po::value<std::string>(), "input file")
             ;
     po::positional_options_description p;
@@ -56,11 +65,22 @@ void Application::parse_options(int argc, char **argv)
     po::store(po::command_line_parser(argc, argv).options(d).positional(p).run(), vm);
     po::notify(vm);
 
+#if CRY_DECRYPT || CRY_ENCRYPT
+    if(vm.count("password"))
+    {
+#if DBG
+        std::cout << "Using Password: " << vm["password"].as<std::string>() << std::endl;
+#endif
+        _password = vm["password"].as<std::string>();
+    }
+#endif
     if(vm.count("encrypt")
             && vm.count("input"))
     {
 #if CRY_ENCRYPT
+# if DBG
         std::cout << "Encrypt \"" << vm["input"].as< std::string >() << "\"" << std::endl;
+# endif//DBG
         encrypt(vm["input"].as< std::string >());
         //e
 #endif
@@ -69,8 +89,11 @@ void Application::parse_options(int argc, char **argv)
             && vm.count("input"))
     {
 #if CRY_DECRYPT
+# if DBG
         std::cout << "Decrypt \"" << vm["input"].as< std::string>() << "\"" << std::endl;
+# endif  //DBG
         //d
+        decrypt(vm["input"].as<std::string>());
 #endif
     }
 
@@ -87,7 +110,7 @@ void Application::encrypt(std::string file)
 
     size_t keylen = gcry_cipher_get_algo_keylen(GPG_ALGO);
 
-    std::string key = cryptToLength("ozmodus9", keylen);
+    std::string key = cryptToLength(_password, keylen);
 
     size_t blklen = gcry_cipher_get_algo_blklen(GPG_ALGO);
 
@@ -190,7 +213,7 @@ void Application::encrypt(std::string file)
     delete[] cryptbuffer;
     delete[] sbuff;
 
-    decrypt(ss.str());
+    //decrypt(ss.str());
 
 #endif // CRY_ENCRYPT
 }
@@ -204,7 +227,7 @@ void Application::decrypt(std::string file)
 
     size_t keylen = gcry_cipher_get_algo_keylen(GPG_ALGO);
 
-    std::string key = cryptToLength("ozmodus9", keylen);
+    std::string key = cryptToLength(_password, keylen);
 
     size_t blklen = gcry_cipher_get_algo_blklen(GPG_ALGO);
 
@@ -241,6 +264,15 @@ void Application::decrypt(std::string file)
     uint64_t *ptr64 = (uint64_t*)cryptbuffer;
     _fileSize = ptr64[0];
     filenameSize = ptr64[1];
+
+    if(filenameSize >= FILENAME_MAX)
+    {
+#if DBG
+        std::cerr << "Filename size too large" << std::endl;
+#endif
+        return;
+    }
+
     uint8_t* ptr = cryptbuffer;
     ptr += 2 * sizeof(uint64_t);
 
@@ -260,11 +292,16 @@ void Application::decrypt(std::string file)
     ptr+=nm.str().size()+1;
     cptr = (char*)ptr;
 
+    _fileName = nm.str();
+
     //std::stringstream fss;
     //fss << cptr;
 
     if(_fileName.size() != filenameSize)
     {
+#if DBG
+        std::cerr << "Not a Cry encrypted file" << std::endl;
+#endif
         return;
     }
 
