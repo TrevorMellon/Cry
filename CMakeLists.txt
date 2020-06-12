@@ -4,6 +4,11 @@ project ( cry VERSION 0.1 )
 
 SET ( APP cry)
 
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    message(STATUS "Enabling Debug Mode")
+    add_definitions(-DDBG=1)
+endif()
+
 option(BUILD_ENCRYPT "build encryptor" OFF)
 option(BUILD_DECRYPT "build decryptor" OFF)
 option(BUILD_ENCDEC "build encryptor and decryptor" OFF)
