@@ -11,12 +11,9 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
-#define GPG_ALGO GCRY_CIPHER_SERPENT256
+#include <config.h>
 
-#define CRY_EXT ".cry"
-#define CRY_DEFAULT_PASSWORD "ozmodus9"
-
-const char* defualt_crypt_string = "cRy-b@by-369";
+const char* defualt_crypt_string = CRY_DEFAULT_IV;
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;

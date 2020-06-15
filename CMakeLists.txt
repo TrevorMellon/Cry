@@ -13,6 +13,11 @@ option(BUILD_ENCRYPT "build encryptor" OFF)
 option(BUILD_DECRYPT "build decryptor" OFF)
 option(BUILD_ENCDEC "build encryptor and decryptor" OFF)
 
+SET(GPG_ALGO  GCRY_CIPHER_SERPENT256)
+SET(CRY_EXT  \".cry\")
+SET(CRY_DEFAULT_PASSWORD  \"thisISaTEST\")
+SET(CRY_DEFAULT_IV \"cRy-b@by-369\")
+
 if(BUILD_ENCDEC)
     SET (BUILD_ENCRYPT OFF)
     SET (BUILD_DECRYPT OFF)
@@ -29,6 +34,8 @@ endif(BUILD_ENCDEC)
 include( cmake/src.cmake )
 
 include( cmake/req.cmake )
+
+configure_file(templates/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h @ONLY)
 
 add_executable( ${APP} ${SRC})
 target_link_libraries(${APP} ${LIBS})
