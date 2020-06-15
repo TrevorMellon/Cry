@@ -96,7 +96,17 @@ void Application::parse_options(int argc, char **argv)
 
 }
 
-void Application::encrypt(std::string file)
+void Application::encrypt(std::string file, EncryptionType type)
+{
+    encryptImpl(file, type);
+}
+
+void Application::decrypt(std::string file, EncryptionType type)
+{
+    decryptImpl(file, type);
+}
+
+void Application::encryptImpl(std::string file, EncryptionType type)
 {
 #if CRY_ENCRYPT
     identifyFile(file);
@@ -105,11 +115,11 @@ void Application::encrypt(std::string file)
 
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
 
-    size_t keylen = gcry_cipher_get_algo_keylen(GPG_ALGO);
+    size_t keylen = gcry_cipher_get_algo_keylen(type);
 
     std::string key = cryptToLength(_password, keylen);
 
-    size_t blklen = gcry_cipher_get_algo_blklen(GPG_ALGO);
+    size_t blklen = gcry_cipher_get_algo_blklen(type);
 
     std::string blk = cryptToLength("testdata##9876", blklen);
 
@@ -215,18 +225,18 @@ void Application::encrypt(std::string file)
 #endif // CRY_ENCRYPT
 }
 
-void Application::decrypt(std::string file)
+void Application::decryptImpl(std::string file, EncryptionType type)
 {
 #if CRY_DECRYPT
     gcry_cipher_hd_t hd;
 
     gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
 
-    size_t keylen = gcry_cipher_get_algo_keylen(GPG_ALGO);
+    size_t keylen = gcry_cipher_get_algo_keylen(type);
 
     std::string key = cryptToLength(_password, keylen);
 
-    size_t blklen = gcry_cipher_get_algo_blklen(GPG_ALGO);
+    size_t blklen = gcry_cipher_get_algo_blklen(type);
 
     std::string blk = cryptToLength("testdata##9876", blklen);
 
