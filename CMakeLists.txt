@@ -35,6 +35,10 @@ include( cmake/src.cmake )
 
 include( cmake/req.cmake )
 
+include(cmake/git.cmake)
+include(cmake/versioner.cmake)
+include(cmake/version.cmake)
+
 configure_file(templates/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h @ONLY)
 
 add_executable( ${APP} ${SRC})

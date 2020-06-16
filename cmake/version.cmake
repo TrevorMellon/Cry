@@ -1,0 +1,15 @@
+if(NOT DEFINED VERSION_FILE)
+        SET (VERSION_FILE "version.h")
+endif(NOT DEFINED VERSION_FILE)
+
+if(NOT DEFINED VERSION_FOLDER)
+        SET (VERSION_FOLDER ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME})
+endif(NOT DEFINED VERSION_FOLDER)
+
+include(FindPythonInterp)
+set (PyVersioner "${PROJECT_SOURCE_DIR}/cmake/versioner.py")
+
+add_custom_target(
+        pyversion ALL ${PYTHON_EXECUTABLE} ${PyVersioner} ${PROJECT_SOURCE_DIR} ${VERSION_FOLDER} ${VERSION_FILE} ${PROJECT_NAME}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)

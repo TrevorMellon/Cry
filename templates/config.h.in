@@ -8,4 +8,11 @@
 #cmakedefine CRY_DEFAULT_PASSWORD @CRY_DEFAULT_PASSWORD@
 #cmakedefine CRY_DEFAULT_IV @CRY_DEFAULT_IV@
 
+#include <@APP@/version.h>
+
+#cmakedefine GIT_REPO       @GIT_REPO@
+#cmakedefine GIT_BRANCH     @GIT_BRANCH@
+#cmakedefine GIT_COMMIT_HASH    @GIT_COMMIT_HASH@
+#cmakedefine GIT_REV_COUNT  @GIT_REV_COUNT@
+
 #endif // CONFIG_H
