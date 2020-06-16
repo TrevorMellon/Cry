@@ -8,7 +8,7 @@
 #cmakedefine CRY_DEFAULT_PASSWORD @CRY_DEFAULT_PASSWORD@
 #cmakedefine CRY_DEFAULT_IV @CRY_DEFAULT_IV@
 
-#include <@APP@/version.h>
+#include <cry/version.h>
 
 #cmakedefine GIT_REPO       @GIT_REPO@
 #cmakedefine GIT_BRANCH     @GIT_BRANCH@
