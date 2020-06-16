@@ -118,19 +118,13 @@ void Application::encryptImpl(std::string file, EncryptionType type)
 
     gcry_cipher_hd_t hd;
 
-    gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
+    gcry_error_t err = gcry_cipher_open(&hd, type, GCRY_CIPHER_MODE_CBC, 0);
 
-    size_t keylen = gcry_cipher_get_algo_keylen(type);
+    CryptDetail cd = getCryptDetails(type);
 
-    std::string key = cryptToLength(_password, keylen);
+    err = gcry_cipher_setkey(hd, cd.key.c_str(), cd.keylength);
 
-    size_t blklen = gcry_cipher_get_algo_blklen(type);
-
-    std::string blk = cryptToLength("testdata##9876", blklen);
-
-    err = gcry_cipher_setkey(hd, key.c_str(), keylen);
-
-    err = gcry_cipher_setiv(hd, blk.c_str(), blklen);
+    err = gcry_cipher_setiv(hd, cd.block.c_str(), cd.blocklength);
 
     fs::path p(file);
 
@@ -150,7 +144,7 @@ void Application::encryptImpl(std::string file, EncryptionType type)
     fsout.open(ss.str(), std::fstream::out| std::fstream::binary);
 
 
-    size_t cnt =1024 * blklen;//1Mb
+    size_t cnt =1024 * cd.blocklength;
 
     CryHeader hdr;
     hdr.filesize = _fileSize;
@@ -194,15 +188,15 @@ void Application::encryptImpl(std::string file, EncryptionType type)
 
     c += headersz;
 
-    int rem = c % blklen;
-    int r = c / blklen;
+    int rem = c % cd.blocklength;
+    int r = c / cd.blocklength;
 
     if(rem)
     {
         ++r;
     }
 
-    size_t bblk = r * blklen;
+    size_t bblk = r * cd.blocklength;
 
     memset(cryptbuffer,0, cnt);
 
@@ -235,19 +229,13 @@ void Application::decryptImpl(std::string file, EncryptionType type)
 #if CRY_DECRYPT
     gcry_cipher_hd_t hd;
 
-    gcry_error_t err = gcry_cipher_open(&hd, GPG_ALGO, GCRY_CIPHER_MODE_CBC, 0);
+    gcry_error_t err = gcry_cipher_open(&hd, type, GCRY_CIPHER_MODE_CBC, 0);
 
-    size_t keylen = gcry_cipher_get_algo_keylen(type);
+    CryptDetail cd = getCryptDetails(type);
 
-    std::string key = cryptToLength(_password, keylen);
+    err = gcry_cipher_setkey(hd, cd.key.c_str(), cd.keylength);
 
-    size_t blklen = gcry_cipher_get_algo_blklen(type);
-
-    std::string blk = cryptToLength("testdata##9876", blklen);
-
-    err = gcry_cipher_setkey(hd, key.c_str(), keylen);
-
-    err = gcry_cipher_setiv(hd, blk.c_str(), blklen);
+    err = gcry_cipher_setiv(hd, cd.block.c_str(), cd.blocklength);
 
     fs::path p(file);
 
@@ -260,7 +248,7 @@ void Application::decryptImpl(std::string file, EncryptionType type)
     std::fstream fs;
     fs.open(p.string(), std::fstream::in | std::fstream::binary);
 
-    size_t cnt =1024 * blklen;//1Mb
+    size_t cnt =1024 * cd.blocklength;
 
     unsigned char *cryptbuffer = new unsigned char[cnt];
     unsigned char *buffer = new unsigned char[cnt];
