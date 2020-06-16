@@ -1,5 +1,5 @@
 include/config.h
-include/cry/version.h
+
 
 .vscode/**
 vs/**
