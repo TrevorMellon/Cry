@@ -8,6 +8,30 @@ namespace cry {
 
     typedef gcry_cipher_algos EncryptionType;
 
+    struct CryHeader
+    {
+        uint64_t    filesize;
+        uint64_t    filenamesize;
+        char*       filename;
+
+        CryHeader()
+        {
+            filename = nullptr;
+            filenamesize = 0;
+            filesize = 0;
+        }
+
+        ~CryHeader()
+        {
+            if(filename)
+            {
+                delete[] filename;
+                filename = nullptr;
+            }
+        }
+
+    };
+
     struct CryptDetail
     {
         size_t          keylength;
@@ -26,6 +50,9 @@ namespace cry {
         void decrypt(std::string file, EncryptionType type=GPG_ALGO);
         void identifyFile(std::string file);
         CryptDetail getCryptDetails(EncryptionType type=GPG_ALGO);
+    public:
+        size_t writeHeader(unsigned char* buffer, const CryHeader &hdr);
+        size_t readHeader(const unsigned char* buffer, CryHeader *hdr);
     protected:
         void encryptImpl(std::string file, EncryptionType type=GPG_ALGO);
         void decryptImpl(std::string file, EncryptionType type=GPG_ALGO);
