@@ -98,12 +98,16 @@ void Application::parse_options(int argc, char **argv)
 
 void Application::encrypt(std::string file, EncryptionType type)
 {
+#if CRY_ENCRYPT
     encryptImpl(file, type);
+#endif
 }
 
 void Application::decrypt(std::string file, EncryptionType type)
 {
+#if CRY_DECRYPT
     decryptImpl(file, type);
+#endif
 }
 
 void Application::encryptImpl(std::string file, EncryptionType type)
