@@ -8,6 +8,14 @@ namespace cry {
 
     typedef gcry_cipher_algos EncryptionType;
 
+    struct CryptDetail
+    {
+        size_t          keylength;
+        std::string     key;
+        size_t          blocklength;
+        std::string     block;
+    };
+
     class Application {
     public:
         Application();
@@ -17,6 +25,7 @@ namespace cry {
         void encrypt(std::string file, EncryptionType type=GPG_ALGO);
         void decrypt(std::string file, EncryptionType type=GPG_ALGO);
         void identifyFile(std::string file);
+        CryptDetail getCryptDetails(EncryptionType type=GPG_ALGO);
     protected:
         void encryptImpl(std::string file, EncryptionType type=GPG_ALGO);
         void decryptImpl(std::string file, EncryptionType type=GPG_ALGO);

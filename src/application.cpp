@@ -24,6 +24,7 @@ struct CryHeader
 {
     uint64_t    filesize;
     uint64_t    filenamesize;
+    char*       filename;
 };
 
 Application::Application() 
@@ -391,4 +392,19 @@ void Application::identifyFile(std::string file)
     }
 
     _fileSize = fs::file_size(p);
+}
+
+CryptDetail Application::getCryptDetails(EncryptionType type)
+{
+    CryptDetail c;
+
+    c.keylength = gcry_cipher_get_algo_keylen(type);
+
+    c.key = cryptToLength(_password, c.keylength);
+
+    c.blocklength = gcry_cipher_get_algo_blklen(type);
+
+    std::string blk = cryptToLength("testdata##9876", c.blocklength);
+
+    return c;
 }
