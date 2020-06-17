@@ -23,11 +23,7 @@ using namespace cry;
 // ==========================================================================
 
 Application::Application() 
-    : _fileName(""),
-      _fileSize(0),
-      _encrypted(false),
-      _originalFileName(""),
-      _password(CRY_DEFAULT_PASSWORD)
+    : _password(CRY_DEFAULT_PASSWORD)
 {
 
 }
@@ -117,7 +113,15 @@ void Application::decrypt(std::string file, EncryptionType type)
 void Application::encryptImpl(std::string file, EncryptionType type)
 {
 #if CRY_ENCRYPT
-    identifyFile(file);
+    size_t filesize = identifyFile(file);
+
+    if(filesize==0)
+    {
+#if DBG
+        std::cerr << "Could not find file" << std::endl;
+#endif
+        return;
+    }
 
     gcry_cipher_hd_t hd;
 
@@ -138,7 +142,7 @@ void Application::encryptImpl(std::string file, EncryptionType type)
     }
 
     std::fstream fs;
-    fs.open(p.string(), std::fstream::in | std::fstream::binary);
+    fs.open(p.string(), std::fstream::in | std::fstream::binary);    
 
     std::stringstream ss;
     ss << file << CRY_EXT;
@@ -147,14 +151,14 @@ void Application::encryptImpl(std::string file, EncryptionType type)
     fsout.open(ss.str(), std::fstream::out| std::fstream::binary);
 
 
-    size_t cnt =1024 * cd.blocklength;
+    size_t cnt =CRY_BUFFER_MULT * cd.blocklength;
 
     CryHeader hdr;
-    hdr.filesize = _fileSize;
+    hdr.filesize = filesize;
     hdr.filenamesize = file.size();
-    hdr.filename = new char[hdr.filenamesize+1];
+    hdr.filename = new char[hdr.filenamesize];
 
-    memset(hdr.filename,0,hdr.filesize+1);
+    memset(hdr.filename,0,hdr.filenamesize);
     char *fnptr = hdr.filename;
     for(char cc: file)
     {
@@ -165,14 +169,27 @@ void Application::encryptImpl(std::string file, EncryptionType type)
 
     size_t hdrsz = sizeof(uint64_t)*2 + hdr.filenamesize + 2;
 
-    unsigned char *buffer = new unsigned char[cnt];
+    unsigned char *filebuffer = new unsigned char[cnt];
     unsigned char *sbuff = new unsigned char[cnt];
 
-    memset(buffer,0,cnt);
-
-    auto some = fs.readsome((char*)buffer,cnt-hdrsz);
+    memset(sbuff,0,cnt);
 
     size_t sz = writeHeader(sbuff, hdr);
+
+    size_t buffer_count = cnt;
+
+    if((int64_t)hdr.filesize-(int64_t)hdrsz < (int64_t)cnt)
+    {
+        buffer_count = hdr.filesize;
+
+        fs.read((char*)filebuffer,buffer_count);
+    }
+    else
+    {
+        buffer_count = buffer_count-sz;
+
+        fs.read((char*)filebuffer,buffer_count);
+    }
 
     if(sz <= 0)
     {
@@ -185,13 +202,13 @@ void Application::encryptImpl(std::string file, EncryptionType type)
     uint8_t *ptr = sbuff;
     ptr += hdrsz;
 
-    for (size_t i = 0; i < some; ++i)
+    for (size_t i = 0; i < buffer_count; ++i) //fill from file contents
     {
-        *ptr = buffer[i];
+        *ptr = filebuffer[i];
         ++ptr;
     }
 
-    size_t bblk = some + hdrsz;
+    size_t bblk = buffer_count + sz;
 
     size_t mult = bblk / cd.blocklength;
     size_t remainder = bblk % cd.blocklength;
@@ -199,7 +216,9 @@ void Application::encryptImpl(std::string file, EncryptionType type)
     size_t r = mult;
     remainder? ++r:r;
 
-    if(cd.blocklength>cnt)
+    size_t outcnt = r * cd.blocklength;
+
+    if(outcnt>cnt)
     {
 #if DBG
         std::cerr << "Buffer not large enough" << std::endl;
@@ -207,32 +226,117 @@ void Application::encryptImpl(std::string file, EncryptionType type)
         return;
     }
 
-    size_t outcnt = r * cd.blocklength;
-
-    unsigned char *cryptbuffer = new unsigned char[outcnt];
-
+    unsigned char *cryptbuffer = new unsigned char[cnt];
     memset(cryptbuffer,0, cnt);
 
-    err = gcry_cipher_encrypt(hd, cryptbuffer, cnt, sbuff, cnt);
+    err = gcry_cipher_encrypt(hd, cryptbuffer, outcnt, sbuff, outcnt);
 
     if(err)
     {
+#if DBG
         auto ec = gcry_err_code(err);
-        delete[] buffer;
+        std::cerr << "Gcrypt Error: " << ec << std::endl;
+#endif
+        delete[] filebuffer;
         delete[] cryptbuffer;
+        delete[] sbuff;
         return;
     }
 
-    fsout.write((char*)cryptbuffer, bblk);
+    fsout.write((char*)cryptbuffer, outcnt);
+
+    int64_t fileoutcount = hdr.filesize - buffer_count - hdrsz;
+
+    while(fileoutcount > 0)
+    {
+        buffer_count = cnt;
+
+        if(fileoutcount < cnt)
+        {
+            buffer_count = fileoutcount;
+        }
+
+        fs.read((char*)filebuffer, buffer_count);
+
+
+        memset(cryptbuffer,0,cnt);
+
+        bblk = buffer_count;
+
+        mult = bblk / cd.blocklength;
+        remainder = bblk % cd.blocklength;
+
+        r = mult;
+        remainder? ++r:r;
+
+        outcnt = r * cd.blocklength;
+
+        if(r==0)
+        {
+            break;
+        }
+
+        if(remainder != 0)
+        {
+#if DBG
+            std::cout << "remainder not 0, filesize remaining: " << fileoutcount;
+#endif
+        }
+
+        if(outcnt>cnt)
+        {
+    #if DBG
+            std::cerr << "Buffer not large enough" << std::endl;
+    #endif
+            delete[] filebuffer;
+            if(cryptbuffer)
+            {
+                delete[] cryptbuffer;
+                cryptbuffer = nullptr;
+            }
+            delete[] sbuff;
+            return;
+        }
+
+        memset(cryptbuffer,0, cnt);
+
+        err = gcry_cipher_encrypt(hd, cryptbuffer, outcnt, filebuffer, outcnt);
+
+        if(err)
+        {
+#if DBG
+            auto ec = gcry_err_code(err);
+            std::cerr << "Gcrypt Error: " << ec << std::endl;
+#endif
+            delete[] filebuffer;
+            if(cryptbuffer)
+            {
+                delete[] cryptbuffer;
+                cryptbuffer = nullptr;
+            }
+            delete[] sbuff;
+            return;
+        }
+
+        fsout.write((char*)cryptbuffer, outcnt);
+
+        fileoutcount -= buffer_count;
+    }
 
     fsout.close();
     fs.close();
 
-    delete[] buffer;
-    delete[] cryptbuffer;
+    delete[] filebuffer;
+    if(cryptbuffer)
+    {
+        delete[] cryptbuffer;
+        cryptbuffer = nullptr;
+    }
     delete[] sbuff;
 
-    //decrypt(ss.str());
+#if DBG
+    decrypt(ss.str());
+#endif
 
 #endif // CRY_ENCRYPT
 }
@@ -263,27 +367,117 @@ void Application::decryptImpl(std::string file, EncryptionType type)
     std::fstream fs;
     fs.open(p.string(), std::fstream::in | std::fstream::binary);
 
-    size_t cnt =1024 * cd.blocklength;
+    size_t cnt =CRY_BUFFER_MULT * cd.blocklength;
 
     unsigned char *cryptbuffer = new unsigned char[cnt];
     unsigned char *buffer = new unsigned char[cnt];
 
-    auto c = fs.readsome((char*)buffer,cnt);    
+    memset(buffer,0,cnt);
+
+    size_t buffer_count = cnt;
+
+    size_t filesz = fs::file_size(file);
+
+    if (filesz <= cnt)
+    {
+        buffer_count = filesz;
+    }
+
+    fs.read((char*)buffer, buffer_count);
 
     memset(cryptbuffer,0, cnt);
 
-    err = gcry_cipher_decrypt(hd, cryptbuffer, c, buffer, c);
+    err = gcry_cipher_decrypt(hd, cryptbuffer, buffer_count, buffer, buffer_count);
+
+    if(err > 0)
+    {
+        auto e = gcry_err_code(err);
+#if DBG
+        std::cerr << "Could not decrypt - error code: " << e << std::endl;
+#endif
+    }
 
     CryHeader ch;
     size_t sz = readHeader(cryptbuffer, &ch);
 
+    buffer_count -= sz;
+
+    if(sz<=0)
+    {
+#if DBG
+        std::cerr << "Could not read header" << std::endl;
+#endif
+        return;
+    }
+
+    if(ch.filesize <= buffer_count)
+    {
+        buffer_count = ch.filesize;
+    }
+
     char *cptr = (char*)cryptbuffer;
-    cptr += sizeof(uint64_t)+2 + ch.filenamesize + 2;
+    cptr += sizeof(uint64_t)*2 + ch.filenamesize + 2;
+
+    std::stringstream ssout;
+    ssout << ch.filename << ".out";
 
     std::fstream fsout;
-    fsout.open(ch.filename, std::fstream::out| std::fstream::binary);
 
-    fsout.write(cptr, _fileSize);
+    fsout.open(ssout.str(), std::fstream::out| std::fstream::binary);
+
+    fsout.write(cptr, buffer_count);
+
+    cptr += buffer_count;
+
+
+    int64_t filesizecount = ch.filesize - buffer_count;
+
+    while(filesizecount > 0)
+    {
+        if(filesizecount>cnt)
+        {
+            buffer_count = cnt;
+        }
+        else
+        {
+            buffer_count = filesizecount;
+
+            size_t bblk = buffer_count;
+
+            size_t mult = bblk / cd.blocklength;
+            size_t remainder = bblk % cd.blocklength;
+
+            size_t r = mult;
+            remainder? ++r:r;
+
+            buffer_count = r * cd.blocklength;
+        }
+
+        fs.read((char*)buffer,buffer_count);
+
+        memset(cryptbuffer,0, buffer_count);
+
+        err = gcry_cipher_decrypt(hd, cryptbuffer, buffer_count, buffer, buffer_count);
+
+        if(err>0)
+        {
+#if DBG
+            auto ec = gcry_err_code(err);
+            std::cerr << "Error while decrypting: " << ec << std::endl;
+#endif
+        }
+
+        if(filesizecount>=buffer_count)
+        {
+            fsout.write((char*)cryptbuffer, buffer_count);
+        }
+        else
+        {
+            fsout.write((char*)cryptbuffer, filesizecount);
+        }
+
+        filesizecount -= buffer_count;
+    }
 
     fsout.close();
     fs.close();
@@ -292,6 +486,7 @@ void Application::decryptImpl(std::string file, EncryptionType type)
 
     delete[] buffer;
     delete[] cryptbuffer;
+
 #endif // CRY_DECRYPT
 }
 
@@ -335,23 +530,19 @@ std::string Application::cryptToLength(std::string in, size_t len)
 
 // ==========================================================================
 
-void Application::identifyFile(std::string file)
+size_t Application::identifyFile(std::string file)
 {
     fs::path p(file);
 
-    _fileName = "";
+    size_t filesize = 0;
 
-    if(fs::exists(p))
+    if(!fs::exists(p))
     {
-        _fileName = file;
-    }
+        return 0;
+    }    
 
-    if(p.extension().string() == "CRY_EXT")
-    {
-        this->_encrypted = true;
-    }
-
-    _fileSize = fs::file_size(p);
+    filesize = fs::file_size(p);
+    return filesize;
 }
 
 // ==========================================================================
@@ -366,7 +557,7 @@ CryptDetail Application::getCryptDetails(EncryptionType type)
 
     c.blocklength = gcry_cipher_get_algo_blklen(type);
 
-    std::string blk = cryptToLength("testdata##9876", c.blocklength);
+    c.block = cryptToLength("testdata##9876", c.blocklength);
 
     return c;
 }
@@ -401,45 +592,51 @@ size_t Application::writeHeader(unsigned char* buffer, const CryHeader &hdr)
 
 size_t Application::readHeader(const unsigned char* buffer, CryHeader *headr)
 {
-    CryHeader &hdr = *headr;
+    CryHeader *hdr = headr;
 
     uint64_t *ptr64 = (uint64_t*)buffer;
-    hdr.filesize = ptr64[0];
-    hdr.filenamesize = ptr64[1];
+    hdr->filesize = ptr64[0];
+    hdr->filenamesize = ptr64[1];
 
-    if(hdr.filenamesize >= FILENAME_MAX)
+    if(hdr->filenamesize >= FILENAME_MAX)
     {
 #if DBG
         std::cerr << "Filename size too large" << std::endl;
 #endif
-        return -1;
+        memset(headr, 0, sizeof(CryHeader));
+        return 0;
     }
 
-    hdr.filename = new char[hdr.filenamesize+1];
+    hdr->filename = new char[hdr->filenamesize+1];
 
     uint8_t *ptr = (uint8_t*)buffer;
     ptr += 2 * sizeof(uint64_t);
-
-    for(size_t i = 0; i<hdr.filenamesize; ++i)
+    if(*ptr != '\n')
     {
-        hdr.filename[i] = *(ptr + i);
+        delete[] hdr->filename;
+        hdr->filename = nullptr;
+        return 0;
     }
-    hdr.filename[hdr.filenamesize] = 0;
+    ++ptr;
 
+    for(size_t i = 0; i<hdr->filenamesize; ++i)
+    {
+        hdr->filename[i] = *(ptr + i);
+    }
+    hdr->filename[hdr->filenamesize] = 0;
 
-
-    if(strlen(hdr.filename) != hdr.filenamesize)
+    if(strlen(hdr->filename) != hdr->filenamesize)
     {
 #if DBG
         std::cerr << "Not a Cry encrypted file" << std::endl;
 #endif
-        delete[] hdr.filename;
-        hdr.filename = nullptr;
-        return -1;
+        delete[] hdr->filename;
+        hdr->filename = nullptr;
+        return 0;
     }
 
     uint64_t headersz = 2 * sizeof(uint64_t);
-    headersz += _fileName.size() + 2;
+    headersz += strlen(hdr->filename) + 2;
 
     return headersz;
 }

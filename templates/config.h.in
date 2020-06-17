@@ -3,6 +3,8 @@
 
 #include <gcrypt.h>
 
+#cmakedefine  CRY_BUFFER_MULT @CRY_BUFFER_MULT@ 
+
 #cmakedefine GPG_ALGO @GPG_ALGO@
 #cmakedefine CRY_EXT @CRY_EXT@
 #cmakedefine CRY_DEFAULT_PASSWORD @CRY_DEFAULT_PASSWORD@

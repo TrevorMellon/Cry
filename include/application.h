@@ -48,7 +48,7 @@ namespace cry {
         void parse_options(int argc, char** argv);
         void encrypt(std::string file, EncryptionType type=GPG_ALGO);
         void decrypt(std::string file, EncryptionType type=GPG_ALGO);
-        void identifyFile(std::string file);
+        size_t identifyFile(std::string file);
         CryptDetail getCryptDetails(EncryptionType type=GPG_ALGO);
     public:
         size_t writeHeader(unsigned char* buffer, const CryHeader &hdr);
@@ -58,11 +58,7 @@ namespace cry {
         void decryptImpl(std::string file, EncryptionType type=GPG_ALGO);
     private:
         std::string cryptToLength(std::string in, size_t len);
-    private:
-        std::string     _fileName;
-        uint64_t        _fileSize;
-        bool            _encrypted;
-        std::string     _originalFileName;
+    private:       
         std::string     _password;
     };
 
