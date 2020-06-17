@@ -156,9 +156,9 @@ void Application::encryptImpl(std::string file, EncryptionType type)
     CryHeader hdr;
     hdr.filesize = filesize;
     hdr.filenamesize = file.size();
-    hdr.filename = new char[hdr.filenamesize];
+    hdr.filename = new char[hdr.filenamesize+1];
 
-    memset(hdr.filename,0,hdr.filenamesize);
+    memset(hdr.filename,0,hdr.filenamesize+1);
     char *fnptr = hdr.filename;
     for(char cc: file)
     {
@@ -410,13 +410,13 @@ void Application::decryptImpl(std::string file, EncryptionType type)
         return;
     }
 
-    if(ch.filesize <= buffer_count)
+    if(ch.filesize < buffer_count)
     {
         buffer_count = ch.filesize;
     }
 
     char *cptr = (char*)cryptbuffer;
-    cptr += sizeof(uint64_t)*2 + ch.filenamesize + 2;
+    cptr += sz;
 
     std::stringstream ssout;
     ssout << ch.filename << ".out";

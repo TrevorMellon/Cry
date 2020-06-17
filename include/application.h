@@ -8,8 +8,9 @@ namespace cry {
 
     typedef gcry_cipher_algos EncryptionType;
 
-    struct CryHeader
+    class CryHeader
     {
+    public:
         uint64_t    filesize;
         uint64_t    filenamesize;
         char*       filename;
