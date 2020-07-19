@@ -16,10 +16,18 @@ option(BUILD_ENCRYPT "build encryptor" OFF)
 option(BUILD_DECRYPT "build decryptor" OFF)
 option(BUILD_ENCDEC "build encryptor and decryptor" OFF)
 
+if(NOT CRY_DEFAULT_PASSWORD)
+    message(STATUS "Using generic default password")
+    SET(CRY_DEFAULT_PASSWORD "DEFAULTpassword123CHANGEME")
+endif()
+
+if(NOT CRY_DEFAULT_IV)
+    message(STATUS "Using default IV")
+    SET(CRY_DEFAULT_IV "cRy-b@by-369")
+endif()
+
 SET(GPG_ALGO  GCRY_CIPHER_SERPENT256)
 SET(CRY_EXT  \".cry\")
-SET(CRY_DEFAULT_PASSWORD  \"thisISaTEST\")
-SET(CRY_DEFAULT_IV \"cRy-b@by-369\")
 
 if(BUILD_ENCDEC)
     SET (BUILD_ENCRYPT OFF)

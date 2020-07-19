@@ -7,8 +7,6 @@
 
 #cmakedefine GPG_ALGO @GPG_ALGO@
 #cmakedefine CRY_EXT @CRY_EXT@
-#cmakedefine CRY_DEFAULT_PASSWORD @CRY_DEFAULT_PASSWORD@
-#cmakedefine CRY_DEFAULT_IV @CRY_DEFAULT_IV@
 
 #include <cry/version.h>
 
@@ -16,5 +14,8 @@
 #cmakedefine GIT_BRANCH     @GIT_BRANCH@
 #cmakedefine GIT_COMMIT_HASH    @GIT_COMMIT_HASH@
 #cmakedefine GIT_REV_COUNT  @GIT_REV_COUNT@
+
+#cmakedefine CRY_DEFAULT_PASSWORD "@CRY_DEFAULT_PASSWORD@"
+#cmakedefine CRY_DEFAULT_IV "@CRY_DEFAULT_IV@"
 
 #endif // CONFIG_H

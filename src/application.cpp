@@ -557,7 +557,7 @@ CryptDetail Application::getCryptDetails(EncryptionType type)
 
     c.blocklength = gcry_cipher_get_algo_blklen(type);
 
-    c.block = cryptToLength("testdata##9876", c.blocklength);
+    c.block = cryptToLength(CRY_DEFAULT_IV, c.blocklength);
 
     return c;
 }
