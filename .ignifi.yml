@@ -64,8 +64,8 @@ build-win:
     - vs2019
     - native
   before_script:
-    - mkdir windows
-    - cd windows
+    - mkdir win10
+    - cd win10
     - cmd /c "echo call vcvarsall x64 > mybuild.bat"
     - cmd /c "echo SET PATH=e:\sdk\shared\bin;%PATH%>>mybuild.bat"
     - cmd /c "echo SET include=e:\sdk\shared\include;%include%>>mybuild.bat"
@@ -79,5 +79,5 @@ build-win:
     - cmd /c "mybuild.bat"
   artifacts:
     paths:
-      - windows/crye.exe
-      - windows/cryd.exe
+      - win10/crye.exe
+      - win10/cryd.exe
