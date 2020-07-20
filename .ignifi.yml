@@ -64,13 +64,13 @@ build-win:
     - vs2019
     - native
   before_script:
-    - mkdir win10
-    - cd win10
-    - cmd /c "echo call vcvarsall x64 > mybuild.bat"
+    - cmd /c "echo mkdir win10 > mybuild.bat"
+    - cmd /c "echo cd win10 >> mybuild.bat"
     - cmd /c "echo SET SDK_ROOT=e:\sdk\shared>> mybuild.bat"
     - cmd /c "echo SET PATH=%SDK_ROOT%\bin;%PATH%>> mybuild.bat"
     - cmd /c "echo SET include=%SDK_ROOT%\include;%include%>> mybuild.bat"
     - cmd /c "echo SET lib=%SDK_ROOT%\lib;%lib%>> mybuild.bat"
+    - cmd /c "echo call vcvarsall x64 >> mybuild.bat"
     - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON .. >> mybuild.bat'
     - cmd /c "echo nmake >> mybuild.bat"
     - cmd /c "echo del CMakeCache.txt Makefile >> mybuild.bat"
