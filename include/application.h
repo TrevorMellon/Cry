@@ -61,6 +61,7 @@ namespace cry {
         std::string cryptToLength(std::string in, size_t len);
     private:       
         std::string     _password;
+        std::string     _output;
     };
 
 } // namespace cry

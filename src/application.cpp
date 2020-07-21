@@ -23,7 +23,8 @@ using namespace cry;
 // ==========================================================================
 
 Application::Application() 
-    : _password(CRY_DEFAULT_PASSWORD)
+    : _password(CRY_DEFAULT_PASSWORD),
+      _output("")
 {
 
 }
@@ -51,12 +52,18 @@ void Application::parse_options(int argc, char **argv)
             ("password,p", po::value<std::string>(), "set the given password")
 #endif
             ("input,f", po::value<std::string>(), "input file")
+            ("output,o", po::value<std::string>(), "output file")
             ;
     po::positional_options_description p;
     p.add("input", -1);
     po::variables_map vm;
     po::store(po::command_line_parser(argc, argv).options(d).positional(p).run(), vm);
     po::notify(vm);
+
+    if(vm.count("output"))
+    {
+        _output = vm["output"].as<std::string>();
+    }
 
 #if CRY_DECRYPT || CRY_ENCRYPT
     if(vm.count("password"))
@@ -423,7 +430,14 @@ void Application::decryptImpl(std::string file, EncryptionType type)
 
     std::fstream fsout;
 
-    fsout.open(ssout.str(), std::fstream::out| std::fstream::binary);
+    if(_output.empty())
+    {
+        fsout.open(ssout.str(), std::fstream::out| std::fstream::binary);
+    }
+    else
+    {
+        fsout.open(_output, std::fstream::out| std::fstream::binary);
+    }
 
     fsout.write(cptr, buffer_count);
 
