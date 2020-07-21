@@ -65,6 +65,8 @@ build-win:
     - native
   before_script:
     - cmd /c "echo mkdir win10 > mybuild.bat"
+    - cmd /c "echo copy e:\sdk\shared\bin\libgcrypt-20.dll win10\ >> mybuild.bat"
+    - cmd /c "echo copy e:\sdk\shared\bin\libgpg-error6-0.dll win10\ >> mybuild.bat"
     - cmd /c "echo cd win10 >> mybuild.bat"
     - cmd /c "echo SET SDK_ROOT=e:\sdk\shared>> mybuild.bat"
     - cmd /c "echo SET PATH=%SDK_ROOT%\bin;%PATH%>> mybuild.bat"
@@ -76,8 +78,7 @@ build-win:
     - cmd /c "echo del CMakeCache.txt Makefile >> mybuild.bat"
     - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON .. >> mybuild.bat'
     - cmd /c "echo nmake >> mybuild.bat"
-    - cmd /c "echo copy e:\sdk\shared\bin\libgcrypt-20.dll %CD% >> mybuild.bat"
-    - cmd /c "echo copy e:\sdk\shared\bin\libgpg-error6-0.dll %CD% >> mybuild.bat"
+    
   script:
     - cmd /c "mybuild.bat"
   artifacts:
