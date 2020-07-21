@@ -64,17 +64,26 @@ build-win:
     - vs2019
     - native
   before_script:
-    - mkdir windows
-    - cd windows
-    - cmd /c "echo call vs 2019 > mybuild.bat"
-    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON .. >> mybuild.bat'
+    - cmd /c "echo mkdir win10 > mybuild.bat"
+    - cmd /c "echo copy e:\sdk\shared\bin\libgcrypt-20.dll win10\ >> mybuild.bat"
+    - cmd /c "echo copy e:\sdk\shared\bin\libgpg-error6-0.dll win10\ >> mybuild.bat"
+    - cmd /c "echo cd win10 >> mybuild.bat"
+    - cmd /c "echo SET SDK_ROOT=e:\sdk\shared>> mybuild.bat"
+    - cmd /c "echo SET PATH=%SDK_ROOT%\bin;%PATH%>> mybuild.bat"
+    - cmd /c "echo SET include=%SDK_ROOT%\include;%include%>> mybuild.bat"
+    - cmd /c "echo SET lib=%SDK_ROOT%\lib;%lib%>> mybuild.bat"
+    - cmd /c "echo call vcvarsall x64 >> mybuild.bat"
+    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_ENCRYPT=ON -DCMAKE_BUILD_TYPE=Release .. >> mybuild.bat'
     - cmd /c "echo nmake >> mybuild.bat"
     - cmd /c "echo del CMakeCache.txt Makefile >> mybuild.bat"
-    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON .. >> mybuild.bat'
+    - cmd /c 'echo cmake -G "NMake Makefiles" -DBUILD_DECRYPT=ON -DCMAKE_BUILD_TYPE=Release .. >> mybuild.bat'
     - cmd /c "echo nmake >> mybuild.bat"
+    
   script:
     - cmd /c "mybuild.bat"
   artifacts:
     paths:
-      - windows/crye.exe
-      - windows/cryd.exe
+      - win10/crye.exe
+      - win10/cryd.exe
+      - win10/libgcrypt-20.dll
+      - win10/libgpg-error6-0.dll
