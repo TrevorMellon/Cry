@@ -436,7 +436,7 @@ void Application::decryptImpl(std::string file, EncryptionType type)
         std::cout << "Do you want me to overwrite? (Y/N)" << std::endl;
         std::string input;
         std::cin >> input;
-        if(input == "Y" or input == "y")
+        if(input == "Y" || input == "y")
         {
             //do nothing
         }
