@@ -426,7 +426,25 @@ void Application::decryptImpl(std::string file, EncryptionType type)
     cptr += sz;
 
     std::stringstream ssout;
-    ssout << ch.filename << ".out";
+
+    //Filename of output file
+    ssout << ch.filename;
+
+    if(fs::exists(ssout.str()))
+    {
+        std::cout << "File: \"" << ssout.str() << " already exists!" << std::endl;
+        std::cout << "Do you want me to overwrite? (Y/N)" << std::endl;
+        std::string input;
+        std::cin >> input;
+        if(input == "Y" or input == "y")
+        {
+            //do nothing
+        }
+        else
+        {
+            ssout << ".out";
+        }
+    }
 
     std::fstream fsout;
 
