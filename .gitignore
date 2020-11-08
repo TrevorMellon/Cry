@@ -5,6 +5,7 @@ include/config.h
 vs/**
 b/**
 build/**
+clu/**
 
 CMakeLists.txt.user
 
