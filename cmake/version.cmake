@@ -13,3 +13,15 @@ add_custom_target(
         pyversion ALL ${PYTHON_EXECUTABLE} ${PyVersioner} ${PROJECT_SOURCE_DIR} ${VERSION_FOLDER} ${VERSION_FILE} ${PROJECT_NAME}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+SET (res "0")
+
+execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} ${PyVersioner} ${PROJECT_SOURCE_DIR} ${VERSION_FOLDER} ${VERSION_FILE} ${PROJECT_NAME}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULTS_VARIABLE res
+)
+
+MESSAGE(STATUS "pyversion ran with ${res}" )
+
+
