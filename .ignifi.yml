@@ -22,6 +22,26 @@ build-pi:
     paths:
       - arm/crye
       - arm/cryd
+
+build-pi4:
+  stage: build
+  tags:
+    - arm
+    - pi4
+    - native
+  script:
+    - mkdir arm
+    - cd arm
+    - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_ENCRYPT=ON ..
+    - make
+    - rm CMakeCache.txt
+    - rm Makefile
+    - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_DECRYPT=ON ..
+    - make
+  artifacts:
+    paths:
+      - arm/crye
+      - arm/cryd
     
 
 
