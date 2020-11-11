@@ -11,9 +11,9 @@
 #include <cry/version.h>
 
 #define GIT_REPO       ssh://git@git.ignifi.me:10022/deadman/cry.git
-#define GIT_BRANCH     libcry
-#define GIT_COMMIT_HASH    0f3e3ee
-#define GIT_REV_COUNT  95
+#define GIT_BRANCH     master
+#define GIT_COMMIT_HASH    b45183d
+#define GIT_REV_COUNT  96
 
 #define CRY_DEFAULT_PASSWORD "DEFAULTpassword123CHANGEME"
 #define CRY_DEFAULT_IV "cRy-b@by-369"
