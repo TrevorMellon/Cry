@@ -50,14 +50,8 @@ include(cmake/git.cmake)
 include(cmake/versioner.cmake)
 include(cmake/version.cmake)
 
-if(WIN32)
-        configure_file(templates/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h @ONLY
-                NEWLINE_STYLE CRLF)
-else(WIN32)
-        configure_file(templates/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h @ONLY
-                NEWLINE_STYLE LF)
-endif(WIN32)
 
+configure_file(templates/config.h.in ${CMAKE_SOURCE_DIR}/include/cry/config.h @ONLY)
 add_executable( ${APP} ${SRC})
 target_link_libraries(${APP} ${LIBS})
 target_include_directories(${APP} PUBLIC ${CMAKE_SOURCE_DIR}/include)
