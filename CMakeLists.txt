@@ -50,12 +50,25 @@ include(cmake/git.cmake)
 include(cmake/versioner.cmake)
 include(cmake/version.cmake)
 
-
 configure_file(templates/config.h.in ${CMAKE_SOURCE_DIR}/include/cry/config.h @ONLY)
+
 add_executable( ${APP} ${SRC})
 target_link_libraries(${APP} ${LIBS})
 target_include_directories(${APP} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(${APP} PUBLIC ${INCS})
+
+SET(SO ${APP}.0.02)
+
+add_library( ${SO} SHARED ${LIBSRC})
+target_link_libraries( ${SO} ${LIBS})
+target_include_directories( ${SO} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories( ${SO} PUBLIC ${INCS})
+
+SET ( L ${APP}-static)
+
+add_library( ${L} STATIC ${LIBSRC})
+target_include_directories( ${L} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories( ${L} PUBLIC ${INCS})
 
 include(cmake/install.cmake)
 

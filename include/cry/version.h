@@ -3,7 +3,7 @@
 
 #define CRY_VERSION_MAJOR 0)
 #define CRY_VERSION_MINOR 2)
-#define CRY_VERSION_BUILD 55)
-#define CRY_VERSION_STRING "0.2.55")
+#define CRY_VERSION_BUILD 83)
+#define CRY_VERSION_STRING "0.2.83")
 
 #endif //CRY_VERSION_H
