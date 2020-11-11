@@ -1,0 +1,3 @@
+install(TARGETS ${APP} 
+    RUNTIME DESTINATION bin
+)
