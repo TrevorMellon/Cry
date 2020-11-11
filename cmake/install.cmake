@@ -4,6 +4,7 @@ install(TARGETS ${APP}
 
 install(TARGETS ${SO} ${L}
     LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
 )
 
 install(FILES ${LIBINC_T}
