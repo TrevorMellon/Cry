@@ -1,0 +1,7 @@
+# 0.1
+
+* Added large file support
+* Ecryption/Decryption has been seperated
+* Versioning system Added
+* Removal of hard Definitions
+* Add option to specify password from the apps commandline
