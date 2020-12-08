@@ -1,5 +1,5 @@
 "cry" is a command line app for encrypting large archives, specifically without prompting for a password.
-It separates the encryptor and the decryptor into indivual applications, so a server can encrypt files but not decrypt for example.
+It separates the encryptor and the decryptor into individual applications, so a server can encrypt files but not decrypt for example.
 
 It may be useful as a reference to integrate gpg encytion into an application.
 
