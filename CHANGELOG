@@ -1,3 +1,12 @@
+# 0.2 [WIP]
+
+* Add output file
+* Resolved errors in encypted files header
+* Added default password config
+* Handled overwriting existing file
+* Make the code more library friendly
+* Added cmake install
+
 # 0.1
 
 * Added large file support
