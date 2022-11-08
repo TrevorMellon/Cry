@@ -1,21 +1,21 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+
+#pragma once
 
 #include <gcrypt.h>
+#include <stdint.h>
 
-#define  CRY_BUFFER_MULT 16 
+constexpr const size_t cry_buffer_multiplier    = 16;
 
-#define GPG_ALGO GCRY_CIPHER_SERPENT256
-#define CRY_EXT ".cry"
+constexpr const gcry_cipher_algos gpg_algo      = GCRY_CIPHER_SERPENT256;
+constexpr const char* cry_ext                   = ".cry";
+
+constexpr const char* cry_default_password      = "DEFAULTpassword123CHANGEME";
+constexpr const char* cry_default_iv            = "cRy-b@by-369";
 
 #include <cry/version.h>
 
-#define GIT_REPO       ssh://git@git.ignifi.me:10022/deadman/cry.git
-#define GIT_BRANCH     master
-#define GIT_COMMIT_HASH    b45183d
-#define GIT_REV_COUNT  96
+constexpr const char* git_repo        = "git@github.com:TrevorMellon/Cry.git";
+constexpr const char* git_branch      = "master";
+constexpr const char* git_hash        = "c62c11d";
+constexpr const uint32_t git_revision       = 104;
 
-#define CRY_DEFAULT_PASSWORD "DEFAULTpassword123CHANGEME"
-#define CRY_DEFAULT_IV "cRy-b@by-369"
-
-#endif // CONFIG_H

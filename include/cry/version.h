@@ -1,9 +1,8 @@
-#ifndef CRY_VERSION_H
-#define CRY_VERSION_H
+#pragma once
 
-#define CRY_VERSION_MAJOR 0)
-#define CRY_VERSION_MINOR 2)
-#define CRY_VERSION_BUILD 88)
-#define CRY_VERSION_STRING "0.2.88")
+#include <stdint.h>
 
-#endif //CRY_VERSION_H
+constexpr const uint32_t cry_version_major = 0;
+constexpr const uint32_t cry_version_minor = 3;
+constexpr const uint32_t cry_version_build = 31;
+constexpr const char* cry_version_string = "0.3.31";

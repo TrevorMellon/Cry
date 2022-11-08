@@ -14,31 +14,25 @@ using namespace cry;
 
 Application::Application()
 {
-    _cry = new Cry();
+    _cry = std::make_unique<Cry>();
 }
 
 // ==========================================================================
 
-Application::~Application()
-{
-    delete _cry;
-}
-
-// ==========================================================================
-
-void Application::parse_options ( int argc, char **argv )
+void
+Application::parse_options ( int argc, char **argv )
 {
     po::options_description d ( "Allowed options" );
     d.add_options()
-#if CRY_ENCRYPT
+    #if CRY_ENCRYPT
     ( "encrypt,e", "encrypt a file" )
-#endif
-#if CRY_DECRYPT
+    #endif
+    #if CRY_DECRYPT
     ( "decrypt,d", "decrypt a file" )
-#endif
-#if CRY_DECRYPT || CRY_ENCRYPT
+    #endif
+    #if CRY_DECRYPT || CRY_ENCRYPT
     ( "password,p", po::value<std::string>(), "set the given password" )
-#endif
+    #endif
     ( "input,f", po::value<std::string>(), "input file" )
     ( "output,o", po::value<std::string>(), "output file" )
     ;
@@ -48,48 +42,42 @@ void Application::parse_options ( int argc, char **argv )
     po::store ( po::command_line_parser ( argc, argv ).options ( d ).positional ( p ).run(), vm );
     po::notify ( vm );
 
-    if ( vm.count ( "output" ) )
-    {
+    if ( vm.count ( "output" ) ) {
         _cry->setOutput (
-                vm["output"].as<std::string>()
+            vm["output"].as<std::string>()
         );
     }
 
-#if CRY_DECRYPT || CRY_ENCRYPT
+    #if CRY_DECRYPT || CRY_ENCRYPT
 
-    if ( vm.count ( "password" ) )
-    {
-#if DBG
+    if ( vm.count ( "password" ) ) {
+        #if DBG
         std::cout << "Using Password: " << vm["password"].as<std::string>() << std::endl;
-#endif
+        #endif
         _cry->setPassword (
-                vm["password"].as<std::string>()
+            vm["password"].as<std::string>()
         );
     }
 
-#endif
+    #endif
 
     if ( vm.count ( "encrypt" )
-            && vm.count ( "input" ) )
-    {
-#if CRY_ENCRYPT
-# if DBG
+        && vm.count ( "input" ) ) {
+        #if CRY_ENCRYPT
+        # if DBG
         std::cout << "Encrypt \"" << vm["input"].as< std::string >() << "\"" << std::endl;
-# endif//DBG        
+        # endif//DBG
         _cry->encrypt ( vm["input"].as< std::string >() );
-#endif
-    }
-    else if ( vm.count ( "decrypt" )
-              && vm.count ( "input" ) )
-    {
-#if CRY_DECRYPT
-# if DBG
+        #endif
+    } else if ( vm.count ( "decrypt" )
+        && vm.count ( "input" ) ) {
+        #if CRY_DECRYPT
+        # if DBG
         std::cout << "Decrypt \"" << vm["input"].as< std::string>() << "\"" << std::endl;
-# endif  //DBG        
+        # endif  //DBG
         _cry->decrypt ( vm["input"].as<std::string>() );
-#endif
+        #endif
     }
-
 }
 
 

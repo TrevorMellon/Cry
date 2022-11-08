@@ -14,9 +14,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 find_path(GCRYPT_INCLUDE_DIR gcrypt.h)
+if(GCRYPT_INCLUDE_DIR)
+    message(STATUS "Found gcrypt header: ${GCRYPT_INCLUDE_DIR}")
+endif(GCRYPT_INCLUDE_DIR)
 
 find_library(GCRYPT_LIBRARIES gcrypt
-    NAMES grypt libcrypt libgcrypt-20 gcrypt-20
+    NAMES grypt libgcrypt libcrypt libgcrypt-20 gcrypt-20
 )
 
 mark_as_advanced(GCRYPT_LIBRARIES GCRYPT_INCLUDE_DIR)

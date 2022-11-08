@@ -1,5 +1,5 @@
 include/config.h
-
+include/cry/config.h
 
 .vscode/**
 vs/**
@@ -7,6 +7,8 @@ b/**
 build/**
 clu/**
 
+.gcov
+
 CMakeLists.txt.user
-
-
+test/test.txt.out
+test/test.txt.cry

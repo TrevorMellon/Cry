@@ -1,0 +1,21 @@
+
+#pragma once
+
+#include <gcrypt.h>
+#include <stdint.h>
+
+constexpr const size_t cry_buffer_multiplier    = @CRY_BUFFER_MULT@;
+
+constexpr const gcry_cipher_algos gpg_algo      = @GPG_ALGO@;
+constexpr const char* cry_ext                   = @CRY_EXT@;
+
+constexpr const char* cry_default_password      = "@CRY_DEFAULT_PASSWORD@";
+constexpr const char* cry_default_iv            = "@CRY_DEFAULT_IV@";
+
+#include <cry/version.h>
+
+constexpr const char* git_repo        = "@GIT_REPO@";
+constexpr const char* git_branch      = "@GIT_BRANCH@";
+constexpr const char* git_hash        = "@GIT_COMMIT_HASH@";
+constexpr const uint32_t git_revision       = @GIT_REV_COUNT@;
+

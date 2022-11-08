@@ -5,12 +5,12 @@ SET ( SRC_T
     
 )
 
-SET( LIBSRC_T
-    ${CMAKE_SOURCE_DIR}/src/cry.cpp
-)
-
 SET ( INC_T
     ${CMAKE_SOURCE_DIR}/include/application.h    
+)
+
+SET( LIBSRC_T
+    ${CMAKE_SOURCE_DIR}/src/cry.cpp
 )
 
 SET( LIBINC_T
@@ -23,4 +23,10 @@ SET( LIBINC_T
 SET( LIBSRC ${LIBSRC_T} ${LIBINC_T})
 
 SET ( SRC ${SRC_T} ${INC_T} ${LIBSRC}) 
+
+if(GCOV)
+    SET(GCOV_SRC
+        ${CMAKE_SOURCE_DIR}/src/cry.cpp
+    )
+endif(GCOV)
 

@@ -3,17 +3,22 @@
 
 #include <cry/cry.h>
 
+#include <memory>
+
 namespace cry {
 
-    class Application {
-    public:
-        Application();
-        ~Application();
-    public:
-        void parse_options(int argc, char** argv);        
+    class Application
+    {
+        public:
+            Application();
+            ~Application() = default;
 
-    private:       
-        Cry     *_cry;
+            // ========================================
+
+            void parse_options ( int argc, char **argv );
+
+        private:
+            std::unique_ptr<Cry>     _cry;
     };
 
 } // namespace cry

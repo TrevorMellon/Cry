@@ -1,4 +1,10 @@
-# 0.2 [WIP]
+# 0.3
+
+* Rework code base to simplify
+* Change encryptor header to add MAGIC
+* Encryptor now expands to block
+
+# 0.2
 
 * Add output file
 * Resolved errors in encypted files header
