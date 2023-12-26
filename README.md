@@ -22,12 +22,6 @@ Specifying the default password is done with:
 
 * CRY_DEFAULT_PASSWORD
 
-The initialisation vector can be set with:
-
-* CRY_DEFAULT_IV
-
-Both those to variables should be specified for production and stored separately securely.
-
 # Building
 
 * cmake -DBUILD_ENCDEC -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .

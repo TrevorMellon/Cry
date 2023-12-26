@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 
 import re
 import io
@@ -14,9 +14,8 @@ class versioner:
 
     def read_version_file(self):
         fo = open(self.root + "/VERSION", "r")
-        line = fo.readline()
-        x = re.findall("([0-9]+)\\.([0-9]+)\\.([0-9]+)", line)
-        t = x[0]
+        line = fo.readline()        
+        t = line.split(".")        
         self.version_major = t[0]
         self.version_minor = t[1]
         self.version_build = t[2]
@@ -46,15 +45,44 @@ class versioner:
         vs = self.version_major + "." + self.version_minor + "." + self.version_build
 
         fo = open(self.root + "/cmake/versioner.cmake", "w")
-        major = "SET ( VERSION_MAJOR " + self.version_major + ")\r\n"
-        minor = "SET ( VERSION_MINOR " + self.version_minor + ")\r\n"
-        build = "SET ( VERSION_BUILD " + self.version_build + ")\r\n"
-        verstr = "SET ( VERSION \"" + vs +"\")\r\n"
+        major = "set ( VERSION_MAJOR " + self.version_major + ")\r\n"
+        minor = "set ( VERSION_MINOR " + self.version_minor + ")\r\n"
+        build = "set ( VERSION_BUILD " + self.version_build + ")\r\n"
+        verstr = "set ( VERSION \"" + vs +"\")\r\n\r\n"
 
         vstr = major + minor + build + verstr
 
         fo.writelines(vstr)
         fo.close()
+
+    def add_header(self):
+        h=u"/*\r\n"
+        h+=u" *\r\n" 
+        h+=u" *\r\n" 
+        h+=u" * ⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠛⠛⠛⠋⢉⣉⣀⡤\r\n"
+        h+=u"⠀*  ⠰⡄⠹⣿⣿⣿⣿⠿⠛⠛⠛⠉⠉⠉⠀⠀⢠⣤⣤⣴⣶⣶⣿⣿⣿⣿⡿⠁\r\n"
+        h+=u"⠀*  ⠀⠘⣦⠈⢿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠿⣿⣿⣿⣿⡟⠀\r\n"
+        h+=u"⠀*  ⠀⠀⠘⢷⡄⠹⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⡟⠀\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠈⢿⣦⠈⢿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⠏⠀\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠈⢻⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⠏⠀\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⢻⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⠃\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⠀⠻⣿⣷⡄⠀⠀⠀⢀⣠⡞⠀⣾⡿⠃\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣦⣠⣴⣿⣿⠁⣸⡿⠁\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⠇⢰⡟⠁\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⡟⢀⡟\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⡿⠁⠎\r\n"
+        h+=u"⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠃\r\n"
+        h+=u" *\r\n"
+        h+=u" *    Cry - Cryptor\r\n"
+        h+=u" *    An ignifi Project © 2023\r\n"
+        h+=u" *\r\n"
+        h+=u" *    Licence : BSD 3-Clause License\r\n"
+        h+=u" *    see file: LICENCE\r\n"
+        h+=u" *\r\n"
+        h+=u" *    Contact: cry.2023.gitlab.x9j3f22@ignifi.eu\r\n"
+        h+=u" *\r\n"
+        h+=u" */\r\n\r\n\r\n"
+        return h.encode('utf-8', 'ignore')
 
     def create_header(self, headerpath, header, project):
         if not os.path.exists(headerpath):
@@ -74,7 +102,9 @@ class versioner:
 
         fo.close()
         print ("header: " + header)
-        fo = open(filestr, "w+")
+        fo = open(filestr, "w+", encoding="utf-8")
+
+        header = self.add_header()
         
         h = "#pragma once\r\n\r\n"        
         h += "#include <stdint.h>\r\n\r\n"
@@ -85,7 +115,7 @@ class versioner:
         build = c + uproject + "_version_build = " + self.version_build + ";\r\n"
         verstr = "constexpr const char* " + uproject + "_version_string = \"" + vs + "\";\r\n" 
 
-        vstr = h + major + minor + build + verstr
+        vstr = header.decode("utf-8") + h + major + minor + build + verstr
 
         fo.writelines(vstr)
         fo.close()

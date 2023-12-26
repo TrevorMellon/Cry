@@ -1,71 +1,93 @@
+/*
+ *
+ *
+ * ⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠛⠛⠛⠋⢉⣉⣀⡤
+⠀*  ⠰⡄⠹⣿⣿⣿⣿⠿⠛⠛⠛⠉⠉⠉⠀⠀⢠⣤⣤⣴⣶⣶⣿⣿⣿⣿⡿⠁
+⠀*  ⠀⠘⣦⠈⢿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠿⣿⣿⣿⣿⡟⠀
+⠀*  ⠀⠀⠘⢷⡄⠹⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⡟⠀
+⠀*  ⠀⠀⠀⠈⢿⣦⠈⢿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⠏⠀
+⠀*  ⠀⠀⠀⠀⠈⢻⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⠏⠀
+⠀*  ⠀⠀⠀⠀⠀⠀⢻⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⠃
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠻⣿⣷⡄⠀⠀⠀⢀⣠⡞⠀⣾⡿⠃
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣦⣠⣴⣿⣿⠁⣸⡿⠁
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⠇⢰⡟⠁
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⡟⢀⡟
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⡿⠁⠎
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠃
+ *
+ *    Cry - Cryptor
+ *    An ignifi Project © 2023
+ *
+ *    Licence : BSD 3-Clause License
+ *    see file: LICENCE
+ *
+ *    Contact: cry.2023.gitlab.x9j3f22@ignifi.eu
+ *
+ */
 
 #ifndef CRY_H
 #define CRY_H
 
-#include <cry/config.h>
+#pragma once
+
 #include <cry/common.h>
+#include <cry/config.h>
 
 #include <string>
 
 namespace cry {
 
-    struct CryptDetail {
-        size_t          keylength;
-        std::string     key;
-        size_t          blocklength;
-        std::string     block;
-    };
+struct CryptDetail {
+  size_t keylength;
+  std::vector<uint8_t> key;
+  size_t blocklength;
+  std::vector<uint8_t> block;
+};
 
-    class Cry
-    {
-        public:
-            Cry();
-            ~Cry() = default;
+class Cry {
+public:
+  Cry() = default;
+  ~Cry() = default;
 
-            // ==========================================
+  // ==========================================
 
-            void encrypt ( std::string file, EncryptionType type = gpg_algo );
-            void decrypt ( std::string file, EncryptionType type = gpg_algo );
-            void setOutput ( std::string output );
-            void setPassword ( std::string password );
+  void Encrypt(const std::string &file, EncryptionType type = gpg_algo) const;
+  void Decrypt(const std::string &file, EncryptionType type = gpg_algo) const;
+  void SetOutput(const std::string &output);
+  void SetPassword(const std::string &password);
 
-            // ==========================================
+  // ==========================================
 
-        private:
+private:
+  CryptDetail EncryptionSetup(gcry_cipher_hd_t &hd, EncryptionType type) const;
 
-            CryptDetail encryptionSetup (
-                gcry_cipher_hd_t &hd,
-                EncryptionType type
-            );
+  std::vector<uint8_t> EncryptBlock(const std::vector<uint8_t> &bufferin,
+                                    const size_t blockSize,
+                                    gcry_cipher_hd_t &hd) const;
 
-            std::vector<uint8_t>
-            encryptBlock (
-                const std::vector<uint8_t> &bufferin,
-                const size_t blockSize,
-                gcry_cipher_hd_t &hd );
+  std::vector<uint8_t> PadToBlock(const std::vector<uint8_t> &in,
+                                  const size_t blocksize) const;
 
-            std::vector<uint8_t> padToBlock (
-                const std::vector<uint8_t> &in,
-                const int blocksize
-            );
+  void EncryptImpl(const std::string &file_in,
+                   EncryptionType type = gpg_algo) const;
+  void DecryptImpl(const std::string &file_in,
+                   EncryptionType type = gpg_algo) const;
 
-            void encryptImpl ( std::string file, EncryptionType type = gpg_algo );
-            void decryptImpl ( std::string file, EncryptionType type = gpg_algo );
+  size_t IdentifyFile(const std::string &file_in) const;
 
-            size_t
-            identifyFile ( std::string file );
+  CryptDetail GetCryptDetails(EncryptionType type) const;
 
-            CryptDetail
-            getCryptDetails ( EncryptionType type );
+  std::vector<uint8_t> CryptToLength(const std::vector<uint8_t> &in,
+                                     size_t len) const;
 
-            std::string
-            cryptToLength ( std::string in, size_t len );
+  std::vector<uint8_t> randomBytes(size_t sz) const;
 
-            // ==========================================
+  // ==========================================
 
-            std::string _password;
-            std::string _output;
-    };
-}
+  std::string _password;
+  std::vector<uint8_t> _pwd;
+  std::string _output;
+};
+} // namespace cry
 
 #endif // CRY_H

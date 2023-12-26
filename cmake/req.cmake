@@ -8,11 +8,26 @@ if(WIN32)
 add_definitions(-DBOOST_ALL_NO_LIB)
 endif(WIN32)
 
-find_package(Boost REQUIRED filesystem system program_options date_time)
+if(BOOST_STATIC)
+set ( Boost_USE_STATIC_LIBS ON ) 
+endif(BOOST_STATIC)
+
+find_package(Boost REQUIRED 
+    filesystem 
+    system 
+    program_options 
+    date_time
+    random
+    )
 
 SET ( LIBS
     ${GCRYPT_LIBRARIES}
-    ${Boost_LIBRARIES}
+    #${Boost_LIBRARIES}
+    Boost::filesystem
+    Boost::system
+    Boost::program_options
+    Boost::date_time
+    Boost::random
 )
 
 SET (INCS
@@ -21,6 +36,6 @@ SET (INCS
 )
 
 if(BUILD_TESTS)
-    find_package(GTest REQUIRED)
+    #find_package(GTest REQUIRED)
     find_package(Threads REQUIRED)
 endif(BUILD_TESTS)

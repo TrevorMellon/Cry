@@ -1,175 +1,177 @@
+/*
+ *
+ *
+ * ⠀⠈⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⠿⠛⠛⠛⠋⢉⣉⣀⡤
+⠀*  ⠰⡄⠹⣿⣿⣿⣿⠿⠛⠛⠛⠉⠉⠉⠀⠀⢠⣤⣤⣴⣶⣶⣿⣿⣿⣿⡿⠁
+⠀*  ⠀⠘⣦⠈⢿⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠛⠿⣿⣿⣿⣿⡟⠀
+⠀*  ⠀⠀⠘⢷⡄⠹⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⡟⠀
+⠀*  ⠀⠀⠀⠈⢿⣦⠈⢿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⠏⠀
+⠀*  ⠀⠀⠀⠀⠈⢻⣷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⠏⠀
+⠀*  ⠀⠀⠀⠀⠀⠀⢻⣿⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⣿⠃
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠻⣿⣷⡄⠀⠀⠀⢀⣠⡞⠀⣾⡿⠃
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣦⣠⣴⣿⣿⠁⣸⡿⠁
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⠇⢰⡟⠁
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⡟⢀⡟
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⡿⠁⠎
+⠀*  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠃
+ *
+ *    Cry - Cryptor
+ *    An ignifi Project © 2023
+ *
+ *    Licence : BSD 3-Clause License
+ *    see file: LICENCE
+ *
+ *    Contact: cry.2023.gitlab.x9j3f22@ignifi.eu
+ *
+ */
+
 #ifndef CRY_COMMON_H
 #define CRY_COMMON_H
 
+#pragma once
+
+#include <algorithm>
 #include <cry/config.h>
+#include <gcrypt.h>
 #include <iostream>
 #include <sstream>
-#include <gcrypt.h>
 #include <stdint.h>
 #include <vector>
 
 namespace cry {
 
-    using EncryptionType = gcry_cipher_algos;
+using EncryptionType = gcry_cipher_algos;
 
-    class CryHeader
-    {
-        public:
+class CryHeader {
+public:
+  // ==============================================
 
-            // ==============================================
+  CryHeader() = default;
 
-            CryHeader() = default;
+  // ==============================================
 
-            // ==============================================
+  ~CryHeader() = default;
 
-            ~CryHeader() = default;
+  // ==============================================
 
-            // ==============================================
+  size_t FileSize() const { return _filesize; }
 
-            uint64_t
-            fileSize() const
-            {
-                return _filesize;
-            }
+  // ==============================================
 
-            // ==============================================
+  size_t FilenameSize() const { return _filename.size(); }
 
-            uint64_t
-            filenameSize() const
-            {
-                return _filename.size();
-            }
+  // ==============================================
 
-            // ==============================================
+  const char *Filename() const { return _filename.data(); }
 
-            const char *
-            filename() const
-            {
-                return _filename.data();
-            }
+  // ==============================================
 
-            // ==============================================
+  size_t Size() const {
+    size_t ret = 0;
+    ret += _filename.size();
+    ret += 2 * sizeof(uint64_t);
+    ret += 2;
+    return ret;
+  }
 
-            size_t
-            size() const
-            {
-                size_t ret = 0;
-                ret += _filename.size();
-                ret += 2 * sizeof ( uint64_t );
-                ret += 2;
-                return ret;
-            }
+  // ==============================================
 
-            // ==============================================
+  void Clear() {
+    _filename.clear();
+    _filesize = 0;
+  }
 
-            void
-            clear()
-            {
-                _filename.clear();
-                _filesize = 0;
-            }
+  // ==============================================
 
-            // ==============================================
+  void SetFileSize(const size_t fs) { _filesize = fs; }
 
-            void
-            setFileSize ( const size_t fs )
-            {
-                _filesize = fs;
-            }
+  // ==============================================
 
-            // ==============================================
+  void SetFilename(const std::string &fn) { _filename = fn; }
 
-            void
-            setFilename ( const std::string &fn )
-            {
-                _filename = fn;
-            }
+  // ==============================================
 
-            // ==============================================
+  size_t ReadHeader(std::vector<uint8_t> buffer) {
+    const auto *ptr64 = (uint64_t *)buffer.data();
+    SetFileSize(ptr64[0]);
+    auto fns = ptr64[1];
 
-            size_t
-            readHeader ( std::vector<uint8_t> buffer )
-            {
-                const auto *ptr64 = ( uint64_t * ) buffer.data();
-                setFileSize ( ptr64[0] );
-                auto fns = ptr64[1];
+    if (fns >= FILENAME_MAX) {
+#if CRY_STDOUT
+      std::cerr << "Filename size too large" << std::endl;
+#endif
+      this->Clear();
+      return 0;
+    }
 
-                if ( fns >= FILENAME_MAX ) {
-                    #if DBG
-                    std::cerr << "Filename size too large" << std::endl;
-                    #endif
-                    this->clear();
-                    return 0;
-                }
+    std::stringstream filenamess;
+    const auto *ptr = buffer.data();
+    ptr += 2 * sizeof(uint64_t);
 
-                std::stringstream filenamess;
-                const auto *ptr = buffer.data();
-                ptr += 2 * sizeof ( uint64_t );
+    if (*ptr != '\n') {
+      return 0;
+    }
 
-                if ( *ptr != '\n' ) {
-                    return 0;
-                }
+    ++ptr;
 
-                ++ptr;
+    for (size_t i = 0; i < fns; ++i) {
+      filenamess << (char)ptr[i];
+    }
 
-                for ( size_t i = 0; i < fns; ++i ) {
-                    filenamess << ( char ) ptr[i] ;
-                }
+    std::string s = filenamess.str();
 
-                std::string s = filenamess.str();
+    if (s.size() != fns) {
+#if CRY_STDOUT
+      std::cerr << "Not a Cry encrypted file" << std::endl;
+#endif
+      return 0;
+    }
 
-                if ( s.size() != fns ) {
-                    #if DBG
-                    std::cerr << "Not a Cry encrypted file" << std::endl;
-                    #endif
-                    return 0;
-                }
+    this->SetFilename(s);
+    const auto headersz = this->Size();
+    return headersz;
+  }
 
-                this->setFilename ( s );
-                const auto headersz = this->size();
-                return headersz;
-            }
+  // ==============================================
 
-            // ==============================================
+  std::vector<uint8_t> WriteHeader() {
+    std::vector<uint8_t> vec;
+    vec.reserve(Size());
+    uint64_t tmp;
+    tmp = _filesize;
+    auto ptr = (uint8_t *)(&tmp);
 
-            std::vector<uint8_t>
-            writeHeader ()
-            {
-                std::vector<uint8_t> vec;
-                vec.reserve ( size() );
-                uint64_t tmp;
-                tmp = _filesize;
-                uint8_t *ptr = ( uint8_t * ) &tmp;
+    auto xz = sizeof(uint64_t);
 
-                for ( size_t i = 0; i < sizeof ( uint64_t ); ++i ) {
-                    vec.push_back ( ptr[i] );
-                }
+    for (size_t i = 0; i < xz; ++i) {
+      vec.push_back(ptr[i]);
+    }
 
-                tmp = _filename.size();
-                ptr = ( uint8_t * ) &tmp;
+    tmp = _filename.size();
+    ptr = (uint8_t *)&tmp;
 
-                for ( size_t i = 0; i < sizeof ( uint64_t ); ++i ) {
-                    vec.push_back ( ptr[i] );
-                }
+    for (size_t i =0; i < xz; ++i) {
+      vec.push_back(ptr[i]);
+    }
 
-                vec.push_back ( '\n' );
 
-                for ( size_t i = 0; i < _filename.size(); ++i ) {
-                    uint8_t cs = ( uint8_t ) _filename[i];
-                    vec.push_back ( cs );
-                }
+    vec.push_back('\n');
 
-                *ptr = 0;
-                return vec;
-            }
+    std::for_each(_filename.begin(), _filename.end(), [&vec](const char &c) {
+      auto cs = (uint8_t)c;
+      vec.push_back(cs);
+    });
 
-            // ==============================================
 
-        private:
-            uint64_t           _filesize = 0;
-            std::string        _filename;
+    return vec;
+  }
 
-    };
+  // ==============================================
+
+private:
+  size_t _filesize = 0;
+  std::string _filename;
+};
 
 } // namespace cry
 #endif // CRY_COMMON_H

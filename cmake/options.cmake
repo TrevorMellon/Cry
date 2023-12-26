@@ -10,12 +10,31 @@ option( BUILD_ENCRYPT "build encryptor" OFF )
 option( BUILD_DECRYPT "build decryptor" OFF )
 option( BUILD_ENCDEC "build encryptor and decryptor" OFF )
 option ( BUILD_TESTS "Build Tests" OFF )
+option ( STDOUT "Enable std::cout" ON )
+option (BOOST_STATIC "Link statically to Boost" OFF)
+option( BUILD_STATIC_LIB "Build Static library" ON )
+option( BUILD_SHARED_LIB "Build Shared library" OFF)
 
 option(GCOV "GCOV Coverage" OFF)
+option(GCOVR "Use gcovr" OFF)
+
+option(GCC_REPORT "GCC Report" OFF)
+
+if(STDOUT)
+    add_definitions("-DCRY_STDOUT=1")
+endif(STDOUT)
 
 if(GCOV)
  SET (BUILD_TESTS ON)
  endif(GCOV)
+
+ if (GCOVR)
+    set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} --coverage")
+ endif(GCOVR)
+
+ if(GCC_REPORT)
+    #set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -fdiagnostics-show-option")
+ endif(GCC_REPORT)
 
 if(NOT CRY_DEFAULT_PASSWORD)
     message(STATUS "Using generic default password")
@@ -23,11 +42,11 @@ if(NOT CRY_DEFAULT_PASSWORD)
 endif()
 
 if(NOT CRY_DEFAULT_IV)
-    message(STATUS "Using default IV")
+    #message(STATUS "Using default IV")
     SET(CRY_DEFAULT_IV "cRy-b@by-369")
 endif()
 
-SET(GPG_ALGO  GCRY_CIPHER_SERPENT256)
+SET(GPG_ALGO  GCRY_CIPHER_AES256)
 SET(CRY_EXT  \".cry\")
 
 if(BUILD_ENCDEC OR GCOV)

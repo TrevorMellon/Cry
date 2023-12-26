@@ -6,7 +6,8 @@ if(NOT DEFINED VERSION_FOLDER)
         SET (VERSION_FOLDER ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME})
 endif(NOT DEFINED VERSION_FOLDER)
 
-include(FindPythonInterp)
+#include(FindPythonInterp)
+find_package(Python3 REQUIRED)
 set (PyVersioner "${PROJECT_SOURCE_DIR}/cmake/versioner.py")
 
 add_custom_target(

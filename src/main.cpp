@@ -3,10 +3,8 @@
 
 using namespace cry;
 
-int main(int argc, char **argv)
-{
-    Application app;
-    app.parse_options(argc, argv);
-
-    return 0;
+int main(int argc, char **argv) {
+  Application app(argc, argv);
+  app.ParseOptions();
+  return 0;
 }

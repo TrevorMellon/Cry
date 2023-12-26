@@ -8,7 +8,9 @@ build/**
 clu/**
 
 .gcov
+.gccreport
+.cache
 
-CMakeLists.txt.user
+CMakeLists.txt.user**
 test/test.txt.out
 test/test.txt.cry
