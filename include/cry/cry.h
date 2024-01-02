@@ -33,6 +33,7 @@
 #include <cry/common.h>
 #include <cry/config.h>
 
+#include <stdint.h>
 #include <string>
 
 namespace cry {
@@ -46,7 +47,7 @@ struct CryptDetail {
 
 class Cry {
 public:
-  Cry() = default;
+  Cry();
   ~Cry() = default;
 
   // ==========================================
@@ -81,6 +82,8 @@ private:
                                      size_t len) const;
 
   std::vector<uint8_t> randomBytes(size_t sz) const;
+
+  uint8_t ScaleUIntToUChar(uint32_t i) const;
 
   // ==========================================
 

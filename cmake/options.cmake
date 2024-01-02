@@ -42,7 +42,7 @@ if(NOT CRY_DEFAULT_PASSWORD)
 endif()
 
 if(NOT CRY_DEFAULT_IV)
-    #message(STATUS "Using default IV")
+    message(STATUS "Using default IV")
     SET(CRY_DEFAULT_IV "cRy-b@by-369")
 endif()
 

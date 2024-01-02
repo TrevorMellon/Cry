@@ -25,6 +25,11 @@ const std::string default_crypt_string = cry_default_iv;
 //
 //***************************************************************************************
 
+Cry::Cry() {
+  gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+}
+
 //===========================================================
 
 void Cry::Encrypt(const std::string &file, EncryptionType type) const {
@@ -101,8 +106,11 @@ void Cry::EncryptImpl(const std::string &file_in, EncryptionType type) const {
   auto hp = PadToBlock(h, cd.blocklength);
   auto block = EncryptBlock(hp, cd.blocklength, hd);
   uint16_t blocks = block.size() / cd.blocklength;
-  const char *magic = "#CRY2";
+  const char *magic = "#CRY3";
   fsout.write(magic, 5);
+  uint16_t iv_sz = cd.block.size();
+  fsout.write((char *)&iv_sz, sizeof(uint16_t));
+  fsout.write((char *)cd.block.data(), cd.block.size());
   fsout.write(reinterpret_cast<char *>(&blocks), sizeof(uint16_t));
   fsout.write((char *)block.data(), block.size());
 
@@ -179,12 +187,30 @@ void Cry::DecryptImpl(const std::string &file_in, EncryptionType type) const {
   fs.read(magic, 5);
   magic[5] = '\0';
 
-  if (strncmp("#CRY2", magic, 5) != 0) {
+  if (strncmp("#CRY3", magic, 5) != 0) {
 #if CRY_STDOUT
     std::cerr << "Not a cry file" << std::endl;
 #endif
     return;
   }
+
+  uint16_t iv_sz = 0;
+  fs.read((char *)&iv_sz, sizeof(uint16_t));
+
+  if (iv_sz == 0) {
+    return;
+  }
+
+  uint8_t *iv = new uint8_t[iv_sz];
+  fs.read((char *)iv, iv_sz);
+
+  cd.block.clear();
+
+  for (size_t iv_i = 0; iv_i < iv_sz; ++iv_i) {
+    cd.block.push_back(iv[iv_i]);
+  }
+
+  gcry_cipher_setiv(hd, cd.block.data(), cd.block.size());
 
   uint16_t b = 0;
   fs.read(reinterpret_cast<char *>(&b), sizeof(uint16_t));
@@ -225,7 +251,7 @@ void Cry::DecryptImpl(const std::string &file_in, EncryptionType type) const {
 
   if (fs::exists(ssout.str())) {
     std::cout << "File: \"" << ssout.str() << " already exists!" << std::endl;
-    std::cout << "Do you want me to overwrite? (Y/N)" << std::endl;
+    std::cout << "Do you want to overwrite? (Y/N)" << std::endl;
     std::string input;
     std::cin >> input;
 
@@ -329,53 +355,19 @@ CryptDetail Cry::GetCryptDetails(EncryptionType type) const {
   c.blocklength = gcry_cipher_get_algo_blklen(type);
   auto vec = randomBytes(c.blocklength);
   std::stringstream ss;
-  /*
-  std::for_each(vec.begin(),vec.end(),[&ss](const uint8_t &i){
-      ss << (char)i;
-  });
-  */
-  for (auto iter = vec.begin(); iter != vec.end(); ++iter) {
-    ss << (char)(*iter);
-  }
-  // c.block = CryptToLength(cry_default_iv, c.blocklength);
-  // c.block = CryptToLength(ss.str(),c.blocklength);
+
   c.block = vec; // CryptToLength(cry_default_iv, c.blocklength);
   return c;
 }
-
-/*
-std::string Cry::CryptToLength(const std::string &in, size_t len) const {
-  size_t l = in.size();
-
-  if (l == len) {
-    return std::string{in};
-  } else if (l > len) {
-    return std::string(in.begin(), in.begin() + len);
-  } else {
-    std::stringstream ss;
-    ss << in;
-    size_t i = 0;
-
-    while (ss.str().size() < len) {
-      ss << default_crypt_string[i];
-      ++i;
-
-      if (i >= default_crypt_string.size()) {
-        i = 0;
-      }
-    }
-
-    return ss.str();
-  }
-}*/
 
 std::vector<uint8_t> Cry::CryptToLength(const std::vector<uint8_t> &in,
                                         size_t len) const {
   size_t l = in.size();
 
-  if(l==0){
+  if (l == 0) {
 #if CRY_STDOUT
-    std::cerr << "CryptToLength value to be expanded can't be empty" << std::endl;
+    std::cerr << "CryptToLength value to be expanded can't be empty"
+              << std::endl;
 #endif
     exit(1);
   }
@@ -457,7 +449,10 @@ std::vector<uint8_t> Cry::EncryptBlock(const std::vector<uint8_t> &bufferin,
     return outvec;
   }
 
-  outvec.assign(out, out + sz);
+  // outvec.assign(out, out + sz);
+  for (size_t i = 0; i < sz; ++i) {
+    outvec.push_back(out[i]);
+  }
   delete[] out;
   return outvec;
 }
@@ -472,7 +467,7 @@ std::vector<uint8_t> Cry::randomBytes(size_t sz) const {
 
   for (size_t i = 0; i < sz; ++i) {
     auto val = rdev();
-    uint8_t c = val;
+    uint8_t c = ScaleUIntToUChar(val);
     outvec.push_back(c);
   }
   return outvec;
@@ -489,7 +484,7 @@ std::vector<uint8_t> Cry::PadToBlock(const std::vector<uint8_t> &in,
 
     while (outvec.size() < blocksize) {
       auto val = rdev();
-      uint8_t c = (uint8_t)val;
+      uint8_t c = ScaleUIntToUChar(val);
       outvec.push_back(c);
     }
   } else {
@@ -501,12 +496,19 @@ std::vector<uint8_t> Cry::PadToBlock(const std::vector<uint8_t> &in,
 
     while (outvec.size() < sz) {
       auto val = rdev();
-      uint8_t c = (uint8_t)val;
+      uint8_t c = ScaleUIntToUChar(val);
       outvec.push_back(c);
     }
   }
 
   return outvec;
+}
+
+uint8_t Cry::ScaleUIntToUChar(uint32_t i) const {
+  double div = (double)i / (double)UINT32_MAX;
+  double m = div * UINT8_MAX;
+  auto c = (uint8_t)m;
+  return c;
 }
 
 } // namespace cry

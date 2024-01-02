@@ -1,0 +1,12 @@
+b/CMakeFiles/3.27.1/CompilerIdC/CMakeCCompilerId.c:743:28: error: syntax error [syntaxError]
+char const* info_version = "INFO" ":" "compiler_version[" COMPILER_VERSION "]";
+                           ^
+b/CMakeFiles/3.27.1/CompilerIdCXX/CMakeCXXCompilerId.cpp:728:28: error: syntax error [syntaxError]
+char const* info_version = "INFO" ":" "compiler_version[" COMPILER_VERSION "]";
+                           ^
+build/CMakeFiles/3.27.1/CompilerIdC/CMakeCCompilerId.c:743:28: error: syntax error [syntaxError]
+char const* info_version = "INFO" ":" "compiler_version[" COMPILER_VERSION "]";
+                           ^
+build/CMakeFiles/3.27.1/CompilerIdCXX/CMakeCXXCompilerId.cpp:728:28: error: syntax error [syntaxError]
+char const* info_version = "INFO" ":" "compiler_version[" COMPILER_VERSION "]";
+                           ^
