@@ -1,7 +1,11 @@
 "cry" is a command line app for encrypting large archives, specifically without prompting for a password.
 It separates the encryptor and the decryptor into individual applications, so a server can encrypt files but not decrypt for example.
 
-It may be useful as a reference to integrate gpg encryption into an application.
+It will hopefully be useful as a reference to integrate gpg encryption into an application.
+
+# Warning
+
+Don't use this in production, the same can be done with native gpg and public/private keys. This was just a learning excercise.
 
 # Requirements
 
@@ -21,8 +25,6 @@ There are three specific options for compilation, mutually exclusive
 Specifying the default password is done with:
 
 * CRY_DEFAULT_PASSWORD
-
-That variable should be specified for production and stored separately securely.
 
 # Building
 
