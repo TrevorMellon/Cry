@@ -210,6 +210,8 @@ void Cry::DecryptImpl(const std::string &file_in, EncryptionType type) const {
     cd.block.push_back(iv[iv_i]);
   }
 
+  delete[] iv;
+
   gcry_cipher_setiv(hd, cd.block.data(), cd.block.size());
 
   uint16_t b = 0;

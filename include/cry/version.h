@@ -32,5 +32,5 @@
 
 constexpr const uint32_t cry_version_major = 0;
 constexpr const uint32_t cry_version_minor = 4;
-constexpr const uint32_t cry_version_build = 449;
-constexpr const char* cry_version_string = "0.4.449";
+constexpr const uint32_t cry_version_build = 450;
+constexpr const char* cry_version_string = "0.4.450";
