@@ -33,7 +33,7 @@
 #include <gcrypt.h>
 #include <stdint.h>
 
-constexpr const size_t cry_buffer_multiplier    = 16;
+constexpr const size_t cry_buffer_multiplier    = 1024;
 
 constexpr const gcry_cipher_algos gpg_algo      = GCRY_CIPHER_AES256;
 constexpr const char* cry_ext                   = ".cry";
@@ -43,9 +43,9 @@ constexpr const char* cry_default_iv            = "cRy-b@by-369";
 
 #include <cry/version.h>
 
-constexpr const char* git_repo        = "ssh://git@git.ignifi.me:10022/deadman/cry.git";
+constexpr const char* git_repo        = "git@github.com:TrevorMellon/Cry.git";
 constexpr const char* git_branch      = "master";
-constexpr const char* git_hash        = "bad1c0a";
-constexpr const uint32_t git_revision       = 284;
+constexpr const char* git_hash        = "289b43b";
+constexpr const uint32_t git_revision       = 110;
 
 #endif // CRY_CONFIG

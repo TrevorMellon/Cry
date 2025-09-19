@@ -13,6 +13,7 @@ extern "C" {
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 
 namespace fs = boost::filesystem;
 
@@ -57,9 +58,10 @@ void Cry::SetOutput(const std::string &output) {
 void Cry::SetPassword(const std::string &password) {
   _password = std::string{password};
   _pwd.clear();
-  for (const auto &c : password) {
-    _pwd.push_back(c);
-  }
+  std::copy(_password.begin(),
+            _password.end(),
+            std::back_inserter(_pwd)
+          );
 }
 
 //===========================================================
@@ -109,10 +111,10 @@ void Cry::EncryptImpl(const std::string &file_in, EncryptionType type) const {
   const char *magic = "#CRY3";
   fsout.write(magic, 5);
   uint16_t iv_sz = cd.block.size();
-  fsout.write((char *)&iv_sz, sizeof(uint16_t));
-  fsout.write((char *)cd.block.data(), cd.block.size());
+  fsout.write(reinterpret_cast<char*>(&iv_sz), sizeof(uint16_t));
+  fsout.write(reinterpret_cast<char*>(cd.block.data()), cd.block.size());
   fsout.write(reinterpret_cast<char *>(&blocks), sizeof(uint16_t));
-  fsout.write((char *)block.data(), block.size());
+  fsout.write(reinterpret_cast<char*>(block.data()), block.size());
 
   if (filesize < cd.blocklength) {
 
@@ -123,6 +125,7 @@ void Cry::EncryptImpl(const std::string &file_in, EncryptionType type) const {
     buffvec.assign(buff, buff + filesize);
     auto pad = PadToBlock(buffvec, cd.blocklength);
     auto enc = EncryptBlock(pad, cd.blocklength, hd);
+    fsout.write(reinterpret_cast<char*>(enc.data()), enc.size());
     delete[] buff;
   } else {
     int64_t store = filesize;
@@ -136,7 +139,7 @@ void Cry::EncryptImpl(const std::string &file_in, EncryptionType type) const {
         buffvec.assign(buff, buff + store);
         auto pad = PadToBlock(buffvec, cd.blocklength);
         auto enc = EncryptBlock(pad, cd.blocklength, hd);
-        fsout.write((char *)enc.data(), enc.size());
+        fsout.write(reinterpret_cast<char*>(enc.data()), enc.size());
         delete[] buff;
       } else {
         auto buff = new char[sizeof(char) * cd.blocklength];
@@ -145,7 +148,7 @@ void Cry::EncryptImpl(const std::string &file_in, EncryptionType type) const {
         buffvec.reserve(cd.blocklength);
         buffvec.assign(buff, buff + cd.blocklength);
         auto enc = EncryptBlock(buffvec, cd.blocklength, hd);
-        fsout.write((char *)enc.data(), enc.size());
+        fsout.write(reinterpret_cast<char*>(enc.data()), enc.size());
         delete[] buff;
       }
 
@@ -195,14 +198,14 @@ void Cry::DecryptImpl(const std::string &file_in, EncryptionType type) const {
   }
 
   uint16_t iv_sz = 0;
-  fs.read((char *)&iv_sz, sizeof(uint16_t));
+  fs.read(reinterpret_cast<char*>(&iv_sz), sizeof(uint16_t));
 
   if (iv_sz == 0) {
     return;
   }
 
   uint8_t *iv = new uint8_t[iv_sz];
-  fs.read((char *)iv, iv_sz);
+  fs.read(reinterpret_cast<char*>(iv), iv_sz);
 
   cd.block.clear();
 
@@ -355,10 +358,9 @@ CryptDetail Cry::GetCryptDetails(EncryptionType type) const {
 
   c.key = CryptToLength(_pwd, c.keylength);
   c.blocklength = gcry_cipher_get_algo_blklen(type);
-  auto vec = randomBytes(c.blocklength);
-  std::stringstream ss;
-
-  c.block = vec; // CryptToLength(cry_default_iv, c.blocklength);
+  auto vec = RandomBytes(c.blocklength);
+  
+  c.block = vec;
   return c;
 }
 
@@ -459,7 +461,7 @@ std::vector<uint8_t> Cry::EncryptBlock(const std::vector<uint8_t> &bufferin,
   return outvec;
 }
 
-std::vector<uint8_t> Cry::randomBytes(size_t sz) const {
+std::vector<uint8_t> Cry::RandomBytes(size_t sz) const {
   std::vector<uint8_t> outvec;
   boost::random::random_device rdev;
 

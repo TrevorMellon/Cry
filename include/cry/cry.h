@@ -81,7 +81,7 @@ private:
   std::vector<uint8_t> CryptToLength(const std::vector<uint8_t> &in,
                                      size_t len) const;
 
-  std::vector<uint8_t> randomBytes(size_t sz) const;
+  std::vector<uint8_t> RandomBytes(size_t sz) const;
 
   uint8_t ScaleUIntToUChar(uint32_t i) const;
 

@@ -1,5 +1,5 @@
 set ( VERSION_MAJOR 0)
-set ( VERSION_MINOR 4)
-set ( VERSION_BUILD 450)
-set ( VERSION "0.4.450")
+set ( VERSION_MINOR 5)
+set ( VERSION_BUILD 21)
+set ( VERSION "0.5.21")
 

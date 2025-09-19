@@ -91,8 +91,9 @@ public:
 
   // ==============================================
 
-  size_t ReadHeader(std::vector<uint8_t> buffer) {
-    const auto *ptr64 = (uint64_t *)buffer.data();
+  size_t ReadHeader(const std::vector<uint8_t> &buffer) {
+    
+    const uint64_t *ptr64 = reinterpret_cast<const uint64_t*>(buffer.data());
     SetFileSize(ptr64[0]);
     auto fns = ptr64[1];
 
@@ -139,7 +140,8 @@ public:
     vec.reserve(Size());
     uint64_t tmp;
     tmp = _filesize;
-    auto ptr = (uint8_t *)(&tmp);
+    
+    uint8_t *ptr = reinterpret_cast<uint8_t*>(&tmp); 
 
     auto xz = sizeof(uint64_t);
 
@@ -148,7 +150,8 @@ public:
     }
 
     tmp = _filename.size();
-    ptr = (uint8_t *)&tmp;
+    
+    ptr = reinterpret_cast<uint8_t*>(&tmp);
 
     for (size_t i =0; i < xz; ++i) {
       vec.push_back(ptr[i]);
